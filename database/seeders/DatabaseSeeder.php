@@ -35,8 +35,6 @@ class DatabaseSeeder extends Seeder
             PacienteSeeder::class,
             JornadaSeeder::class,
             CargaSeeder::class,
-            DespachoSeeder::class,
-            TratamientoSeeder::class,
         ]);
     }
 }
