@@ -15,9 +15,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
-            background: url({{ asset('img/mask.jpg')
-        }
-        });
+            background: url({{ asset('img/mask.jpg')}});
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
