@@ -20,6 +20,8 @@ use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\ModuloInventarioController;
 use App\Http\Controllers\ReporteModuloController;
 use app\Http\Controllers\SispaIController;
+use App\Http\Controllers\DescargaRapidaController;
+use App\Http\Controllers\ModuloPerdidaController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -160,4 +162,14 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
     Route::get('/sispai', [SispaIController::class, 'index'])->name('sispai.index');
     Route::get('/sispai/excel', [SispaIController::class, 'excel'])->name('sispai.excel');
     Route::get('/sispai/pdf', [SispaIController::class, 'pdf'])->name('sispai.pdf');
+
+    // Descargo rápido — accesible por todos los niveles
+Route::get('descargo', [DescargaRapidaController::class, 'create'])->name('descargo.create');
+Route::post('descargo', [DescargaRapidaController::class, 'store'])->name('descargo.store');
+Route::post('descargo/bulk', [DescargaRapidaController::class, 'storeBulk'])->name('descargo.bulk');
+
+// Pérdidas del módulo
+Route::get('modulo/{modulo}/perdidas', [ModuloPerdidaController::class, 'index'])->name('modulo.perdidas.index');
+Route::post('modulo/{modulo}/perdidas', [ModuloPerdidaController::class, 'store'])->name('modulo.perdidas.store');
+
 });

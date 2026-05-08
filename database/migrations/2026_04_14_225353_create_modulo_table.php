@@ -17,8 +17,24 @@ return new class extends Migration
             $table->string('rif', 20)->unique();
             $table->string('nombre', 150);
             $table->text('direccion')->nullable();
+            $table->string('municipio', 100)->nullable();
+            $table->string('parroquia', 100)->nullable();
+            $table->enum('tipo_establecimiento', [
+                'CP1',
+                'CP2',
+                'CP3',
+                'HOSPITAL',
+                'CDI',
+                'IVSS',
+                'IPASME',
+                'SANIDAD MILITAR',
+                'PRIVADO',
+                'OTROS'
+            ])->default('CP1');
+            $table->integer('sispai_fila')->nullable();
             $table->string('telefono', 20)->nullable();
-            $table->string('responsable', 100)->nullable();
+            $table->integer('jefe_cedula')->nullable();
+            $table->foreign('jefe_cedula')->references('cedula')->on('personal')->nullOnDelete();
             $table->timestamps();
         });
     }
