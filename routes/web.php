@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\App;
+// routes/web.php
+use Illuminate\Support\Facades\Artisan;
 
 // RUTAS DE AUTENTICACIÓN...........................................................................................................................
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -26,3 +28,10 @@ Route::get('/modulo/{modulo}/reporte', function (Modulo $modulo) {
         'anio'      => now()->year,
     ]);
 })->name('modulo.reporte.index');
+
+
+
+Route::get('/ejecutar-migraciones', function () {
+    Artisan::call('migrate', ["--force" => true]);
+    return 'Migraciones ejecutadas correctamente.';
+});
