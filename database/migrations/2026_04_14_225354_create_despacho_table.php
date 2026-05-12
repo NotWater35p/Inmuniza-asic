@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('despacho', function (Blueprint $table) {
@@ -21,16 +18,14 @@ return new class extends Migration
             $table->foreign('responsable_envio')
                 ->references('cedula')
                 ->on('personal');
+            $table->string('lote', 50)->nullable();
             $table->integer('cantidad');
             $table->timestamps();
-            
+
             $table->index(['asic_id', 'vacuna_id'], 'idx_despacho_asig');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('despacho');

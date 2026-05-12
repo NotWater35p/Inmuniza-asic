@@ -147,13 +147,19 @@
             </div>
 
             {{-- Botón --}}
-            <div class="mt-4 pt-3 border-t border-white/20">
+            <div class="mt-4 pt-3 border-t border-white/20 inline-flex shadow-xs -space-x-px" role="group">
                 <a href="{{ route('modulos.show', $modulo->id) }}"
-                    class="inline-flex items-center justify-center gap-2 w-full py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium rounded-lg transition-colors text-sm">
+                    class="inline-flex items-center justify-center gap-2 w-full py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium rounded-s-lg transition-colors text-sm">
                     Ver detalles
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right-icon lucide-arrow-right w-4 h-4"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+                <a href="{{ route('modulo.inventario', $modulo->id) }}"
+                    class="inline-flex items-center justify-center gap-2 w-full py-2.5 bg-white/20 hover:bg-white/30 text-white font-medium rounded-e-lg transition-colors text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg>
+                    Ver Inventario
                 </a>
             </div>
+
         </div>
         @empty
         <div class="col-span-full py-20 text-center">

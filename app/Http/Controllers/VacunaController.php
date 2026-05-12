@@ -22,9 +22,9 @@ class VacunaController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('nombre', 'like', "%$s%")
-                  ->orWhere('enfermedad', 'like', "%$s%")
-                  ->orWhere('presentacion', 'like', "%$s%")
-                  ->orWhereHas('marca', fn($q) => $q->where('nombre', 'like', "%$s%"));
+                    ->orWhere('enfermedad', 'like', "%$s%")
+                    ->orWhere('presentacion', 'like', "%$s%")
+                    ->orWhereHas('marca', fn($q) => $q->where('nombre', 'like', "%$s%"));
             });
         }
 
@@ -78,14 +78,18 @@ class VacunaController extends Controller
 
     public function edit($id): View
     {
-        $vacuna = Vacuna::findOrFail($id);
-        $marcas = Marca::orderBy('nombre')->get();
+        $vacuna  = Vacuna::with('marca')->findOrFail($id);
+        $marcas  = Marca::orderBy('nombre')->get();
+        // El nombre NO se puede editar una vez guardado
         return view('vacuna.edit', compact('vacuna', 'marcas'));
     }
 
-    public function update(VacunaRequest $request, $id): RedirectResponse
+    public function update(VacunaRequest $request, Vacuna $vacuna): RedirectResponse
     {
-        Vacuna::findOrFail($id)->update($request->validated());
+        $datos = $request->validated();
+        unset($datos['nombre']); // el nombre nunca se actualiza
+        $vacuna->update($datos);
+
         return Redirect::route('vacunas.index')
             ->with('success', 'Vacuna actualizada exitosamente.');
     }

@@ -5,24 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Modulo;
 use App\Models\Asic;
 use App\Models\Personal;
-use App\Models\Cargo;
 use App\Http\Requests\ModuloRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use App\Enums\TipoEstablecimiento;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ModuloController extends Controller
 {
-    /**
-     * Display a listing of the resource (vista mosaico).
-     */
     public function index(Request $request): View
     {
         $query = Modulo::with(['asic', 'jefe.cargo']);
-
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -42,9 +36,6 @@ class ModuloController extends Controller
         return view('modulo.index', compact('modulos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         $modulo = new Modulo();
@@ -53,14 +44,11 @@ class ModuloController extends Controller
             ->whereHas('cargo', fn($q) => $q->where('nivel_acceso', 2))
             ->orderBy('apellido')
             ->get();
-        $tipos  = TipoEstablecimiento::valores(); // para el select
+        $tipos  = Modulo::TIPOS_ESTABLECIMIENTO;
 
         return view('modulo.create', compact('modulo', 'asics', 'jefes', 'tipos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ModuloRequest $request): RedirectResponse
     {
         Modulo::create($request->validated());
@@ -69,18 +57,12 @@ class ModuloController extends Controller
             ->with('success', 'Módulo creado exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id): View
     {
-        $modulo = Modulo::with('asic')->findOrFail($id);
+        $modulo = Modulo::with(['asic', 'jefe.cargo'])->findOrFail($id);
         return view('modulo.show', compact('modulo'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id): View
     {
         $modulo = Modulo::findOrFail($id);
@@ -89,14 +71,11 @@ class ModuloController extends Controller
             ->whereHas('cargo', fn($q) => $q->where('nivel_acceso', 2))
             ->orderBy('apellido')
             ->get();
-        $tipos  = TipoEstablecimiento::valores();
+        $tipos  = Modulo::TIPOS_ESTABLECIMIENTO;
 
         return view('modulo.edit', compact('modulo', 'asics', 'jefes', 'tipos'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ModuloRequest $request, $id): RedirectResponse
     {
         $modulo = Modulo::findOrFail($id);
@@ -106,21 +85,14 @@ class ModuloController extends Controller
             ->with('success', 'Módulo actualizado exitosamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id): RedirectResponse
     {
-        $modulo = Modulo::findOrFail($id);
-        $modulo->delete();
+        Modulo::findOrFail($id)->delete();
 
         return Redirect::route('modulos.index')
             ->with('success', 'Módulo eliminado exitosamente.');
     }
 
-    /**
-     * Generar PDF individual de un módulo.
-     */
     public function generarPDF($id)
     {
         $modulo = Modulo::with('asic')->findOrFail($id);
@@ -128,9 +100,6 @@ class ModuloController extends Controller
         return $pdf->download("modulo-{$modulo->id}.pdf");
     }
 
-    /**
-     * Generar PDF universal con todos los módulos.
-     */
     public function generarPDFUniversal()
     {
         $modulos = Modulo::with('asic')->orderBy('nombre')->get();

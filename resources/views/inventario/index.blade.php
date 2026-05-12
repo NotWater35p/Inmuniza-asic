@@ -156,20 +156,16 @@
     <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h3 class="font-semibold text-gray-900 flex items-center gap-2">
-                <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
                 <span id="modalLotesTitle">Detalle por lotes</span>
             </h3>
             <button onclick="cerrarModalLotes()" class="p-1 hover:bg-gray-100 rounded-lg">
-                <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
         </div>
         <div class="p-5">
-            <div id="modalLotesBody" class="overflow-x-auto">
-                <div class="flex items-center justify-center py-8 text-gray-400">
-                    <i data-lucide="loader-circle" class="w-6 h-6 animate-spin mr-2"></i>
-                    Cargando...
-                </div>
-            </div>
+            {{-- Estado inicial: vacío, sin spinner --}}
+            <div id="modalLotesBody" class="overflow-x-auto"></div>
         </div>
     </div>
 </div>
@@ -268,26 +264,33 @@
     // ---- Modal Lotes ----
     function verLotes(id, nombre) {
         document.getElementById('modalLotesTitle').textContent = nombre + ' — Lotes';
+
+        // Spinner sin lucide — puro CSS
         document.getElementById('modalLotesBody').innerHTML = `
-            <div class="flex items-center justify-center py-8 text-gray-400">
-                <i data-lucide="loader-circle" class="w-6 h-6 animate-spin mr-2"></i> Cargando...
+            <div class="flex items-center justify-center py-8 text-gray-400 gap-2">
+                <svg class="animate-spin w-5 h-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+                <span class="text-sm">Cargando lotes...</span>
             </div>`;
+
         document.getElementById('modalLotes').classList.remove('hidden');
-        lucide.createIcons();
 
         fetch(`/inventario/lotes/${id}`, {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(r => r.json())
         .then(data => {
-            if (!data.lotes.length) {
-                document.getElementById('modalLotesBody').innerHTML = `
-                    <p class="text-center text-gray-400 py-6 text-sm">No hay lotes registrados para esta vacuna.</p>`;
+            if (!data.lotes || !data.lotes.length) {
+                document.getElementById('modalLotesBody').innerHTML =
+                    `<p class="text-center text-gray-400 py-6 text-sm">No hay lotes registrados para esta vacuna.</p>`;
                 return;
             }
-            let rows = data.lotes.map(l => `
+
+            const rows = data.lotes.map(l => `
                 <tr class="border-b border-gray-50 last:border-0">
-                    <td class="py-2.5 pr-3 font-mono text-xs text-gray-700">${l.lote}</td>
+                    <td class="py-2.5 pr-3 font-mono text-xs text-gray-700">${l.lote ?? '—'}</td>
                     <td class="py-2.5 px-3 text-center text-xs">${l.fecha_vencimiento ?? '—'}</td>
                     <td class="py-2.5 px-3 text-center text-xs font-mono">${l.entrado}</td>
                     <td class="py-2.5 px-3 text-center text-xs font-mono text-orange-600">${l.despachado}</td>
@@ -315,13 +318,14 @@
                 </table>`;
         })
         .catch(() => {
-            document.getElementById('modalLotesBody').innerHTML = `
-                <p class="text-center text-red-500 py-6 text-sm">Error al cargar los lotes.</p>`;
+            document.getElementById('modalLotesBody').innerHTML =
+                `<p class="text-center text-red-500 py-6 text-sm">Error al cargar los lotes. Intenta de nuevo.</p>`;
         });
     }
 
     function cerrarModalLotes() {
         document.getElementById('modalLotes').classList.add('hidden');
+        document.getElementById('modalLotesBody').innerHTML = '';
     }
 
     // ---- Modal Pérdida ----
