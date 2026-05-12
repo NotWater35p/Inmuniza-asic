@@ -197,21 +197,26 @@
                 </div>
 
                 {{-- Lote --}}
+                {{-- Lote — SELECT con lotes disponibles --}}
                 <div>
                     <label for="lote" class="block mb-1.5 text-sm font-medium text-gray-700">
                         <span class="flex items-center gap-1.5">
-                            <i data-lucide="tag" class="w-3.5 h-3.5 text-gray-400"></i>
-                            Lote <span class="text-gray-400 font-normal text-xs">(opcional)</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                                <line x1="7" x2="7.01" y1="7" y2="7" />
+                            </svg>
+                            Lote <span class="text-red-500">*</span>
+                            <span id="lote_cargando" class="hidden text-xs text-blue-500 font-normal">cargando...</span>
                         </span>
                     </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <i data-lucide="hash" class="w-4 h-4 text-gray-400"></i>
-                        </div>
-                        <input type="text" name="lote" id="lote" value="{{ old('lote', $despacho?->lote) }}"
-                            placeholder="LOT-2024-A"
-                            class="pl-9 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                    </div>
+                    <select name="lote" id="lote" required
+                        class="bg-gray-50 border {{ $errors->has('lote') ? 'border-red-500 bg-red-50' : 'border-gray-300' }} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        {{-- Se carga via AJAX al iniciar la página --}}
+                        <option value="{{ $despacho->lote }}">{{ $despacho->lote }} (actual)</option>
+                    </select>
                     @error('lote')<p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -319,26 +324,76 @@
     }
 
     function actualizarStock(vacunaId) {
-        if (!vacunaId) return;
-        fetch(`{{ route('despachos.stock.check') }}?vacuna_id=${vacunaId}&exclude_id=${excludeId}`)
-            .then(r => r.json())
-            .then(data => {
-                stockActual = data.stock + {{ $despacho->cantidad }};
-                const widget   = document.getElementById('stockWidget');
-                const nombreEl = document.getElementById('stockVacunaNombre');
-                const cantEl   = document.getElementById('stockCantidad');
-                widget.classList.remove('hidden');
-                nombreEl.textContent = data.vacuna;
-                cantEl.textContent   = stockActual.toLocaleString() + ' dosis';
-                const base = 'mt-2 p-3 rounded-lg border flex items-center justify-between';
-                widget.className  = base + (stockActual === 0 ? ' border-red-200 bg-red-50' : ' border-green-200 bg-green-50');
-                nombreEl.className = 'text-sm font-medium ' + (stockActual === 0 ? 'text-red-700' : 'text-green-700');
-                cantEl.className   = 'text-lg font-bold '   + (stockActual === 0 ? 'text-red-700' : 'text-green-700');
-                lucide.createIcons();
-                const cant = parseInt(document.getElementById('cantidad').value) || 0;
-                if (cant > 0) validarCantidad(cant);
-            });
-    }
+    if (!vacunaId) return;
+    const loteSelect   = document.getElementById('lote');
+    const loteCargando = document.getElementById('lote_cargando');
+    const loteActual   = '{{ $despacho->lote }}';
+
+    loteSelect.disabled = true;
+    loteCargando.classList.remove('hidden');
+
+    fetch(`{{ route('despachos.stock.check') }}?vacuna_id=${vacunaId}&exclude_id=${excludeId}`)
+        .then(r => r.json())
+        .then(data => {
+            // Widget stock total
+            stockActual = data.stock + {{ $despacho->cantidad }};
+            const widget   = document.getElementById('stockWidget');
+            const nombreEl = document.getElementById('stockVacunaNombre');
+            const cantEl   = document.getElementById('stockCantidad');
+            widget.classList.remove('hidden');
+            nombreEl.textContent = data.vacuna;
+            cantEl.textContent   = stockActual.toLocaleString() + ' dosis';
+            const base = 'mt-2 p-3 rounded-lg border flex items-center justify-between ';
+            widget.className  = base + (stockActual === 0 ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50');
+            nombreEl.className = 'text-sm font-medium ' + (stockActual === 0 ? 'text-red-700' : 'text-green-700');
+            cantEl.className   = 'text-lg font-bold '   + (stockActual === 0 ? 'text-red-700' : 'text-green-700');
+
+            // Poblar select de lotes
+            // Incluir siempre el lote actual (aunque ya no tenga stock libre,
+            // porque al editar se restaura primero)
+            loteSelect.innerHTML = '<option value="">— Selecciona un lote —</option>';
+            let loteActualIncluido = false;
+
+            if (data.lotes && data.lotes.length > 0) {
+                data.lotes.forEach(lote => {
+                    const opt = document.createElement('option');
+                    opt.value = lote.lote;
+                    const vence = lote.fecha_vencimiento ? ` · Vence: ${lote.fecha_vencimiento}` : '';
+                    // Al editar, el lote actual tiene su disponible + la cantidad del despacho actual
+                    const dispMostrado = (lote.lote === loteActual)
+                        ? lote.disponible + {{ $despacho->cantidad }}
+                        : lote.disponible;
+                    opt.textContent = `${lote.lote}  (${dispMostrado} disponibles${vence})`;
+                    if (lote.lote === loteActual) loteActualIncluido = true;
+                    opt.selected = (lote.lote === loteActual);
+                    loteSelect.appendChild(opt);
+                });
+            }
+
+            // Si el lote actual no está en los resultados, agregarlo igual
+            if (!loteActualIncluido && loteActual) {
+                const opt = document.createElement('option');
+                opt.value    = loteActual;
+                opt.textContent = `${loteActual} (actual · ${{{ $despacho->cantidad }}} disponibles para reasignar)`;
+                opt.selected = true;
+                loteSelect.appendChild(opt);
+            }
+
+            loteSelect.disabled = false;
+            lucide.createIcons();
+            const cant = parseInt(document.getElementById('cantidad').value) || 0;
+            if (cant > 0) validarCantidad(cant);
+        })
+        .finally(() => {
+            loteCargando.classList.add('hidden');
+        });
+}
+
+// Cargar lotes al iniciar la página con la vacuna actual
+document.addEventListener('DOMContentLoaded', () => {
+    const vacunaActualId = document.getElementById('vacuna_id_hidden').value;
+    if (vacunaActualId) actualizarStock(vacunaActualId);
+});
 
     function validarCantidad(valor) {
         const cant  = parseInt(valor) || 0;

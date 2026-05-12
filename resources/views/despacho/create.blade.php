@@ -106,7 +106,8 @@
                         @error('vacuna_id')<p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>@enderror
 
                         {{-- Widget stock --}}
-                        <div id="si_stock_widget" class="hidden mt-2 p-3 rounded-lg border flex items-center justify-between">
+                        <div id="si_stock_widget"
+                            class="hidden mt-2 p-3 rounded-lg border flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <i data-lucide="package" class="w-4 h-4"></i>
                                 <span class="text-sm font-medium" id="si_stock_nombre"></span>
@@ -150,7 +151,8 @@
                         <label class="block mb-1.5 text-sm font-medium text-gray-700">
                             Responsable del Envío <span class="text-red-500">*</span>
                         </label>
-                        <input type="hidden" name="responsable_envio" id="si_resp_hidden" value="{{ old('responsable_envio') }}">
+                        <input type="hidden" name="responsable_envio" id="si_resp_hidden"
+                            value="{{ old('responsable_envio') }}">
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <i data-lucide="user-check" class="w-4 h-4 text-gray-400"></i>
@@ -167,7 +169,8 @@
                         <label for="si_lote" class="block mb-1.5 text-sm font-medium text-gray-700">
                             <span class="flex items-center gap-1.5">
                                 <i data-lucide="tag" class="w-3.5 h-3.5 text-gray-400"></i>
-                                Lote <span class="text-gray-400 font-normal text-xs">(opcional — se usará para el control por lote en inventario)</span>
+                                Lote <span class="text-gray-400 font-normal text-xs">(opcional — se usará para el
+                                    control por lote en inventario)</span>
                             </span>
                         </label>
                         <div class="relative">
@@ -190,9 +193,8 @@
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <i data-lucide="boxes" class="w-4 h-4 text-gray-400"></i>
                             </div>
-                            <input type="number" name="cantidad" id="si_cantidad" min="1"
-                                value="{{ old('cantidad') }}" placeholder="0"
-                                oninput="validarCantidadSingle(this.value)"
+                            <input type="number" name="cantidad" id="si_cantidad" min="1" value="{{ old('cantidad') }}"
+                                placeholder="0" oninput="validarCantidadSingle(this.value)"
                                 class="pl-9 bg-gray-50 border {{ $errors->has('cantidad') ? 'border-red-500' : 'border-gray-300' }} text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5">
                         </div>
                         @error('cantidad')<p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>@enderror
@@ -220,13 +222,15 @@
                 </div>
 
                 {{-- Info ASIC --}}
-                <div class="mx-5 mb-5 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-2.5 text-sm text-blue-700">
+                <div
+                    class="mx-5 mb-5 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-2.5 text-sm text-blue-700">
                     <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i>
                     <span>Despacho desde: <strong>{{ $asic->nombre }}</strong></span>
                 </div>
 
                 {{-- Botones --}}
-                <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+                <div
+                    class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg">
                     <a href="{{ route('despachos.index') }}"
                         class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                         Cancelar
@@ -250,7 +254,8 @@
                 <div class="flex items-center gap-2">
                     <i data-lucide="table" class="w-4 h-4 text-primary-600"></i>
                     <h2 class="text-base font-semibold text-gray-800">Registro Múltiple</h2>
-                    <span class="px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full" id="bulk_row_count">1 fila</span>
+                    <span class="px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full"
+                        id="bulk_row_count">1 fila</span>
                 </div>
                 <button type="button" onclick="bulkAgregarFila()"
                     class="flex items-center gap-2 font-medium text-dark bg-gray-300 hover:bg-dark hover:text-white focus:ring-4 focus:ring-neutral-tertiary leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
@@ -259,9 +264,11 @@
                 </button>
             </div>
 
-            <div class="mx-5 mt-4 p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-start gap-2.5 text-sm text-amber-700">
+            <div
+                class="mx-5 mt-4 p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-start gap-2.5 text-sm text-amber-700">
                 <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
-                <p>Cada fila representa un registro independiente. Cada uno valida su stock por separado. Puede copiar la fecha y responsable de la primera fila a todas las demás.</p>
+                <p>Cada fila representa un registro independiente. Cada uno valida su stock por separado. Puede copiar
+                    la fecha y responsable de la primera fila a todas las demás.</p>
             </div>
 
             <form method="POST" action="{{ route('despachos.store.bulk') }}" id="bulk_form">
@@ -270,7 +277,8 @@
 
                 <div class="p-5">
                     {{-- Controles rápidos --}}
-                    <div class="flex flex-wrap items-center gap-3 mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
+                    <div
+                        class="flex flex-wrap items-center gap-3 mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
                         <span class="font-medium text-gray-500 flex items-center gap-1">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                             Copiar primera fila:
@@ -298,7 +306,8 @@
                                 <tr class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
                                     <th class="px-3 py-2.5 text-left font-semibold" style="width:220px">Vacuna *</th>
                                     <th class="px-3 py-2.5 text-left font-semibold" style="width:180px">Módulo *</th>
-                                    <th class="px-3 py-2.5 text-left font-semibold" style="width:200px">Responsable *</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold" style="width:200px">Responsable *
+                                    </th>
                                     <th class="px-3 py-2.5 text-left font-semibold" style="width:130px">Fecha *</th>
                                     <th class="px-3 py-2.5 text-left font-semibold" style="width:110px">Lote</th>
                                     <th class="px-3 py-2.5 text-left font-semibold" style="width:110px">Cantidad *</th>
@@ -312,13 +321,15 @@
                 </div>
 
                 {{-- Info ASIC --}}
-                <div class="mx-5 mb-5 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-2.5 text-sm text-blue-700">
+                <div
+                    class="mx-5 mb-5 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-2.5 text-sm text-blue-700">
                     <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i>
                     <span>Todos los despachos se registran desde: <strong>{{ $asic->nombre }}</strong></span>
                 </div>
 
                 {{-- Botones --}}
-                <div class="flex items-center justify-between gap-3 px-5 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+                <div
+                    class="flex items-center justify-between gap-3 px-5 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg">
                     <p class="text-xs text-gray-400 flex items-center gap-1">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
                         Cada fila valida stock independientemente antes de guardar
@@ -499,70 +510,86 @@
     let siStock = null;
 
     function verificarStockSingle(vacunaId) {
-    const lotesSug = document.getElementById('si_lotes_sugeridos');
-    if (!vacunaId) {
-        document.getElementById('si_stock_widget').classList.add('hidden');
-        lotesSug.classList.add('hidden');
-        siStock = null;
-        return;
-    }
+        const loteSelect    = document.getElementById('si_lote');
+        const loteCargando  = document.getElementById('si_lote_cargando');
+        const lotesSug      = document.getElementById('si_lotes_sugeridos'); // puede no existir
+        const stockWidget   = document.getElementById('si_stock_widget');
 
-    fetch(`${STOCK_URL}?vacuna_id=${vacunaId}`)
-        .then(r => r.json())
-        .then(d => {
-            siStock = d.stock;
-            const w  = document.getElementById('si_stock_widget');
-            const nm = document.getElementById('si_stock_nombre');
-            const cn = document.getElementById('si_stock_cantidad');
-
-            w.classList.remove('hidden');
-            nm.textContent = d.vacuna;
-            cn.textContent = d.stock.toLocaleString() + ' unidades';
-
-            const esRojo    = d.stock === 0;
-            const esNaranja = d.stock > 0 && d.stock <= 50;
-            w.className  = 'mt-2 p-3 rounded-lg border ' + (esRojo ? 'border-red-200 bg-red-50' : esNaranja ? 'border-orange-200 bg-orange-50' : 'border-green-200 bg-green-50');
-            nm.className = 'text-sm font-medium ' + (esRojo ? 'text-red-700' : esNaranja ? 'text-orange-700' : 'text-green-700');
-            cn.className = 'text-lg font-bold '   + (esRojo ? 'text-red-700' : esNaranja ? 'text-orange-700' : 'text-green-700');
-            document.getElementById('si_btn_submit').disabled = d.stock === 0;
-
-            // Mostrar lotes disponibles como sugerencias clickeables
-const lotesSug    = document.getElementById('si_lotes_sugeridos');
-// Mostrar lotes disponibles como badges sin cantidad engañosa
-const lotesBadges = document.getElementById('si_lotes_badges');
-lotesBadges.innerHTML = '';
-
-if (d.lotes && d.lotes.length > 0) {
-    let hayLotes = false;
-    d.lotes.forEach(lote => {
-        if (lote.disponible <= 0) return; // omitir lotes sin stock (según datos del backend)
-        hayLotes = true;
-        const badge = document.createElement('button');
-        badge.type = 'button';
-        // Texto solo con el nombre del lote, sin número
-        badge.className = 'inline-flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-semibold bg-white border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors';
-        badge.innerHTML = `<span>${lote.lote}</span>`;
-        // Tooltip con la cantidad original cargada (opcional, para informar)
-        if (lote.cantidad_original) {
-            badge.title = `Cantidad cargada: ${lote.cantidad_original}`;
+        if (!vacunaId) {
+            stockWidget.classList.add('hidden');
+            loteSelect.innerHTML = '<option value="">— Selecciona una vacuna primero —</option>';
+            loteSelect.disabled = true;
+            siStock = null;
+            return;
         }
-        badge.onclick = () => {
-            document.getElementById('si_lote').value = lote.lote;
-            lotesBadges.querySelectorAll('button').forEach(b => b.classList.remove('ring-2','ring-blue-500'));
-            badge.classList.add('ring-2','ring-blue-500');
-        };
-        lotesBadges.appendChild(badge);
-    });
-    lotesSug.classList.toggle('hidden', !hayLotes);
-} else {
-    lotesSug.classList.add('hidden');
-}
 
-            lucide.createIcons();
-            const cant = parseInt(document.getElementById('si_cantidad').value) || 0;
-            if (cant > 0) validarCantidadSingle(cant);
-        });
-}
+        // Mostrar spinner
+        loteSelect.disabled = true;
+        loteCargando.classList.remove('hidden');
+        loteSelect.innerHTML = '<option value="">Cargando lotes...</option>';
+
+        fetch(`${STOCK_URL}?vacuna_id=${vacunaId}`)
+            .then(r => r.json())
+            .then(d => {
+                siStock = d.stock;
+
+                // Widget de stock total
+                const w  = document.getElementById('si_stock_widget');
+                const nm = document.getElementById('si_stock_nombre');
+                const cn = document.getElementById('si_stock_cantidad');
+                w.classList.remove('hidden');
+                nm.textContent = d.vacuna;
+                cn.textContent = d.stock.toLocaleString() + ' unidades';
+                const esRojo    = d.stock === 0;
+                const esNaranja = d.stock > 0 && d.stock <= 50;
+                w.className  = 'mt-2 p-3 rounded-lg border flex items-center justify-between ' +
+                    (esRojo ? 'border-red-200 bg-red-50' : esNaranja ? 'border-orange-200 bg-orange-50' : 'border-green-200 bg-green-50');
+                nm.className = 'text-sm font-medium ' + (esRojo ? 'text-red-700' : esNaranja ? 'text-orange-700' : 'text-green-700');
+                cn.className = 'text-lg font-bold '   + (esRojo ? 'text-red-700' : esNaranja ? 'text-orange-700' : 'text-green-700');
+
+                // Poblar select de lotes
+                loteSelect.innerHTML = '<option value="">— Selecciona un lote —</option>';
+
+                if (d.lotes && d.lotes.length > 0) {
+                    d.lotes.forEach(lote => {
+                        const opt = document.createElement('option');
+                        opt.value = lote.lote;
+                        const vence = lote.fecha_vencimiento
+                            ? ` · Vence: ${lote.fecha_vencimiento}`
+                            : '';
+                        opt.textContent = `${lote.lote}  (${lote.disponible} disponibles${vence})`;
+                        opt.dataset.disponible = lote.disponible;
+                        loteSelect.appendChild(opt);
+                    });
+                    loteSelect.disabled = false;
+                } else {
+                    loteSelect.innerHTML = '<option value="">Sin lotes con stock disponible</option>';
+                    loteSelect.disabled = true;
+                }
+
+                document.getElementById('si_btn_submit').disabled = d.stock === 0;
+
+                // Actualizar max de cantidad según lote seleccionado
+                loteSelect.addEventListener('change', function () {
+                    const opt = this.options[this.selectedIndex];
+                    const disp = parseInt(opt.dataset.disponible) || 0;
+                    document.getElementById('si_cantidad').max = disp || '';
+                    siStock = disp;
+                    const cant = parseInt(document.getElementById('si_cantidad').value) || 0;
+                    if (cant > 0) validarCantidadSingle(cant);
+                }, { once: false });
+
+                lucide.createIcons();
+                const cant = parseInt(document.getElementById('si_cantidad').value) || 0;
+                if (cant > 0) validarCantidadSingle(cant);
+            })
+            .catch(() => {
+                loteSelect.innerHTML = '<option value="">Error al cargar lotes</option>';
+            })
+            .finally(() => {
+                loteCargando.classList.add('hidden');
+            });
+    }
 
     function validarCantidadSingle(val) {
         const cant  = parseInt(val) || 0;

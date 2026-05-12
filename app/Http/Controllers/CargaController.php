@@ -23,7 +23,9 @@ class CargaController extends Controller
         $query = Carga::with(['vacuna', 'asic']);
 
         if ($request->filled('vacuna')) {
-            $query->whereHas('vacuna', fn($q) =>
+            $query->whereHas(
+                'vacuna',
+                fn($q) =>
                 $q->where('nombre', 'like', '%' . $request->vacuna . '%')
             );
         }
@@ -51,7 +53,7 @@ class CargaController extends Controller
         if ($request->filled('proximos_vencer')) {
             $dias = (int) $request->proximos_vencer;
             $query->whereDate('fecha_vencimiento', '>=', Carbon::today())
-                  ->whereDate('fecha_vencimiento', '<=', Carbon::today()->addDays($dias));
+                ->whereDate('fecha_vencimiento', '<=', Carbon::today()->addDays($dias));
         }
 
         $query->orderBy('fecha_llegada', 'desc');
@@ -91,7 +93,9 @@ class CargaController extends Controller
     // -------------------------------------------------------
     public function store(CargaRequest $request): RedirectResponse
     {
-        Carga::create($request->validated());
+        $datos = $request->validated();
+        $datos['cantidad_disponible'] = $datos['cantidad']; // ← inicializar
+        Carga::create($datos);
 
         return Redirect::route('cargas.index')
             ->with('success', 'Carga registrada exitosamente.');
@@ -116,13 +120,14 @@ class CargaController extends Controller
 
         foreach ($request->cargas as $item) {
             Carga::create([
-                'asic_id'           => $asic->id,
-                'vacuna_id'         => $item['vacuna_id'],
-                'lote'              => $item['lote'],
-                'fecha_llegada'     => $item['fecha_llegada'],
-                'fecha_vencimiento' => $item['fecha_vencimiento'],
-                'cantidad'          => $item['cantidad'],
-                'observaciones'     => $item['observaciones'] ?? null,
+                'asic_id'             => $asic->id,
+                'vacuna_id'           => $item['vacuna_id'],
+                'lote'                => $item['lote'],
+                'fecha_llegada'       => $item['fecha_llegada'],
+                'fecha_vencimiento'   => $item['fecha_vencimiento'],
+                'cantidad'            => $item['cantidad'],
+                'cantidad_disponible' => $item['cantidad'], // ← inicializar
+                'observaciones'       => $item['observaciones'] ?? null,
             ]);
         }
 
@@ -155,7 +160,16 @@ class CargaController extends Controller
     // -------------------------------------------------------
     public function update(CargaRequest $request, Carga $carga): RedirectResponse
     {
-        $carga->update($request->validated());
+        $datos       = $request->validated();
+        $diferencia  = $datos['cantidad'] - $carga->cantidad;
+
+        // Solo aumentar disponible si aumenta la cantidad;
+        // si baja, reducir sin pasar de 0
+        $nuevoDisponible = max(0, $carga->cantidad_disponible + $diferencia);
+        $datos['cantidad_disponible'] = $nuevoDisponible;
+
+        $carga->update($datos);
+
         return Redirect::route('cargas.index')
             ->with('success', 'Carga actualizada exitosamente.');
     }
@@ -186,10 +200,10 @@ class CargaController extends Controller
         $query = Carga::with(['vacuna', 'asic']);
 
         if ($request->filled('vacuna')) {
-            $query->whereHas('vacuna', fn($q) => $q->where('nombre', 'like', '%'.$request->vacuna.'%'));
+            $query->whereHas('vacuna', fn($q) => $q->where('nombre', 'like', '%' . $request->vacuna . '%'));
         }
         if ($request->filled('lote')) {
-            $query->where('lote', 'like', '%'.$request->lote.'%');
+            $query->where('lote', 'like', '%' . $request->lote . '%');
         }
         if ($request->filled('fecha_llegada_desde')) {
             $query->whereDate('fecha_llegada', '>=', $request->fecha_llegada_desde);
@@ -212,7 +226,7 @@ class CargaController extends Controller
         if ($request->filled('proximos_vencer')) {
             $dias = (int) $request->proximos_vencer;
             $query->whereDate('fecha_vencimiento', '>=', Carbon::today())
-                  ->whereDate('fecha_vencimiento', '<=', Carbon::today()->addDays($dias));
+                ->whereDate('fecha_vencimiento', '<=', Carbon::today()->addDays($dias));
         }
 
         $cargas     = $query->orderBy('fecha_llegada', 'desc')->get();
@@ -221,7 +235,10 @@ class CargaController extends Controller
         $generadoEn = Carbon::now()->format('d/m/Y H:i');
 
         $pdf = Pdf::loadView('carga.reportes.general', compact(
-            'cargas', 'asic', 'totalDosis', 'generadoEn'
+            'cargas',
+            'asic',
+            'totalDosis',
+            'generadoEn'
         ))->setPaper('a4', 'landscape');
 
         return $pdf->download('reporte_cargas_' . Carbon::now()->format('Ymd_His') . '.pdf');
@@ -237,7 +254,9 @@ class CargaController extends Controller
         $generadoEn = Carbon::now()->format('d/m/Y H:i');
 
         $pdf = Pdf::loadView('carga.reportes.individual', compact(
-            'carga', 'asic', 'generadoEn'
+            'carga',
+            'asic',
+            'generadoEn'
         ))->setPaper('a4', 'portrait');
 
         return $pdf->download('carga_' . $carga->lote . '_' . Carbon::now()->format('Ymd') . '.pdf');

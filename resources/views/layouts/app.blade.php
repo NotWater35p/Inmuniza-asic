@@ -14,7 +14,7 @@
     <link rel="icon" href="{{ asset('img/svg/logo_alter.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body {background: url({{ asset('img/mask.jpg')}});
+        body { background: url({{ asset('img/mask.jpg')}});
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
@@ -211,10 +211,10 @@
                 {{-- ═══════════════════════════════════════════════ --}}
                 @if($esJefe)
 
-                {{-- Dashboard del módulo --}}
+                {{-- Dashboard --}}
                 <li>
                     <a href="{{ route('modulo.dashboard') }}"
-                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'modulo.dashboard') ? 'active' : '' }}">
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ $rutaActual === 'modulo.dashboard' ? 'active' : '' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
@@ -225,20 +225,138 @@
                     </a>
                 </li>
 
-                {{-- Inventario del módulo --}}
-                @if($moduloJefe)
+                {{-- Clínica accordion --}}
                 <li>
-                    <a href="{{ route('modulo.inventario', $moduloJefe->id) }}"
-                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'modulo.inventario') ? 'active' : '' }}">
+                    <button data-accordion-target="#clinica-content" aria-expanded="false"
+                        class="accordion-btn flex items-center justify-between px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'pacientes') || str_starts_with($rutaActual, 'jornadas') || str_starts_with($rutaActual, 'tratamientos') || str_starts_with($rutaActual, 'descargo') ? 'active' : '' }}">
+                        <div class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M2 6h4" />
+                                <path d="M2 10h4" />
+                                <path d="M2 14h4" />
+                                <path d="M2 18h4" />
+                                <rect width="16" height="20" x="4" y="2" rx="2" />
+                                <path d="M9.5 8h5" />
+                                <path d="M9.5 12H16" />
+                                <path d="M9.5 16H14" />
+                            </svg>
+                            <span>Clínica</span>
+                        </div>
+                        <svg class="w-4 h-4 shrink-0 transition-transform duration-200" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 0 1 1.414 0L10 10.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </li>
+                <li id="clinica-content" class="accordion-content hidden">
+                    <ul class="py-1 space-y-0.5 pl-2">
+                        <li>
+                            <a href="{{ route('pacientes.index') }}"
+                                class="sidebar-link flex items-center gap-2.5 px-3 py-1.5 text-body text-sm rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'pacientes') ? 'active' : '' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                Pacientes
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('jornadas.index') }}"
+                                class="sidebar-link flex items-center gap-2.5 px-3 py-1.5 text-body text-sm rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'jornadas') ? 'active' : '' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M8 2v4" />
+                                    <path d="M16 2v4" />
+                                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                                    <path d="M3 10h18" />
+                                    <path d="M10 16h4" />
+                                    <path d="M12 14v4" />
+                                </svg>
+                                Jornadas
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('tratamientos.index') }}"
+                                class="sidebar-link flex items-center gap-2.5 px-3 py-1.5 text-body text-sm rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'tratamientos') ? 'active' : '' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 11v4" />
+                                    <path d="M14 13h-4" />
+                                    <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                                    <rect width="20" height="14" x="2" y="6" rx="2" />
+                                </svg>
+                                Tratamientos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('descargo.create') }}"
+                                class="sidebar-link flex items-center gap-2.5 px-3 py-1.5 text-body text-sm rounded-base hover:bg-orange-50 hover:text-orange-600 w-full {{ str_starts_with($rutaActual, 'descargo') ? 'active' : '' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                                    <path d="M13 2v7h7" />
+                                    <path d="M12 12v6" />
+                                    <path d="M9 15h6" />
+                                </svg>
+                                Descargo Rápido
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Catálogo de Vacunas --}}
+                <li>
+                    <a href="{{ route('vacunas.index') }}"
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'vacunas') ? 'active' : '' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" />
-                            <path d="M12 22V12" />
-                            <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" />
-                            <path d="m7.5 4.27 9 5.15" />
+                            <path d="m18 2 4 4" />
+                            <path d="m17 7 3-3" />
+                            <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
+                            <path d="m9 11 4 4" />
+                            <path d="m5 19-3 3" />
+                            <path d="m14 4 6 6" />
                         </svg>
-                        <span>Mi Inventario</span>
+                        <span>Catálogo Vacunas</span>
+                    </a>
+                </li>
+
+                @if($moduloJefe)
+                {{-- Pérdidas --}}
+                <li>
+                    <a href="{{ route('modulo.perdidas.index', $moduloJefe->id) }}"
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-red-50 hover:text-red-600 w-full {{ str_starts_with($rutaActual, 'modulo.perdidas') ? 'active' : '' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                            <path d="M12 9v4" />
+                            <path d="M12 17h.01" />
+                        </svg>
+                        <span>Pérdidas</span>
+                    </a>
+                </li>
+
+                {{-- Reporte Mensual --}}
+                <li>
+                    <a href="{{ route('modulo.reporte.index', $moduloJefe->id) }}"
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'modulo.reporte') ? 'active' : '' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                            <path d="M15 18H9" />
+                            <path d="M15 14H9" />
+                            <path d="M6 22h12a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z" />
+                        </svg>
+                        <span>Reporte Mensual</span>
                     </a>
                 </li>
                 @endif

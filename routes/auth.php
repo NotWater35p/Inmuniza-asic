@@ -94,9 +94,9 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
         Route::resource('personal', PersonalController::class);
 
         // ----- Vacunas -----
-        Route::resource('vacunas', VacunaController::class)->except(['show']);
-        Route::get('vacunas/{vacuna}/pdf', [VacunaController::class, 'generarPDF'])->name('vacunas.pdf');
-        Route::post('vacunas/marca', [VacunaController::class, 'storeMarca'])->name('vacunas.marca.store');
+    Route::resource('vacunas', VacunaController::class)->except(['show', 'index']);
+    Route::get('vacunas/{vacuna}/pdf', [VacunaController::class, 'generarPDF'])->name('vacunas.pdf');
+    Route::post('vacunas/marca', [VacunaController::class, 'storeMarca'])->name('vacunas.marca.store');
         // Route::resource('vacunas', VacunaController::class);
     });
 
@@ -134,6 +134,7 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
     })->middleware('auth')->name('paciente.buscar.ajax');
 
     // ----- Descargo rápido (salidas de inventario) -----
+    Route::get('vacunas', [VacunaController::class, 'index'])->name('vacunas.index');
     Route::get('vacunas/{vacuna}', [VacunaController::class, 'show'])->name('vacunas.show');
     Route::get('descargo', [DescargaRapidaController::class, 'create'])->name('descargo.create');
     Route::post('descargo', [DescargaRapidaController::class, 'store'])->name('descargo.store');

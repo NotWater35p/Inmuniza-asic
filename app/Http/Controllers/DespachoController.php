@@ -21,31 +21,78 @@ use Carbon\Carbon;
 class DespachoController extends Controller
 {
     // ----------------------------------------------------------------
-    // HELPER: Stock disponible de una vacuna en el ASIC
-    // Stock ASIC = Cargas - Despachos - Pérdidas(sin modulo_id)
-    // Los tratamientos NO restan del ASIC, restan del módulo
+    // HELPER: Stock ASIC = SUM(cantidad_disponible) - pérdidas sin módulo
     // ----------------------------------------------------------------
     private function calcularStock(int $vacuna_id, int $asic_id, ?int $excludeDespachoId = null): int
     {
-        $totalCargas = Carga::where('vacuna_id', $vacuna_id)
+        $disponible = Carga::where('vacuna_id', $vacuna_id)
             ->where('asic_id', $asic_id)
-            ->sum('cantidad');
+            ->sum('cantidad_disponible');
 
-        $query = Despacho::where('vacuna_id', $vacuna_id)
-            ->where('asic_id', $asic_id);
-
-        if ($excludeDespachoId) {
-            $query->where('id', '!=', $excludeDespachoId);
-        }
-
-        $totalDespachos = $query->sum('cantidad');
-
-        // Solo pérdidas del ASIC (sin modulo_id)
-        $totalPerdidas = Perdida::where('vacuna_id', $vacuna_id)
+        $perdido = Perdida::where('vacuna_id', $vacuna_id)
             ->whereNull('modulo_id')
             ->sum('cantidad');
 
-        return max(0, $totalCargas - $totalDespachos - $totalPerdidas);
+        // Si estamos editando, devolvemos temporalmente la cantidad del despacho excluido
+        $bonus = 0;
+        if ($excludeDespachoId) {
+            $d = Despacho::find($excludeDespachoId);
+            $bonus = $d ? $d->cantidad : 0;
+        }
+
+        return max(0, $disponible - $perdido + $bonus);
+    }
+
+    // ----------------------------------------------------------------
+    // HELPER: Descuenta de cantidad_disponible en cargas (FIFO por fecha_llegada)
+    // ----------------------------------------------------------------
+    private function deducirDeCarga(int $vacunaId, int $asicId, ?string $lote, int $cantidad): void
+    {
+        $query = Carga::where('vacuna_id', $vacunaId)
+            ->where('asic_id', $asicId)
+            ->where('cantidad_disponible', '>', 0)
+            ->orderBy('fecha_llegada'); // FIFO
+
+        if ($lote) {
+            $query->where('lote', $lote);
+        } else {
+            $query->whereNull('lote');
+        }
+
+        $restante = $cantidad;
+        foreach ($query->get() as $carga) {
+            if ($restante <= 0) break;
+            $deducir = min($restante, $carga->cantidad_disponible);
+            $carga->decrement('cantidad_disponible', $deducir);
+            $restante -= $deducir;
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // HELPER: Restaura cantidad_disponible en cargas (anti-FIFO)
+    // ----------------------------------------------------------------
+    private function restaurarACarga(int $vacunaId, int $asicId, ?string $lote, int $cantidad): void
+    {
+        $query = Carga::where('vacuna_id', $vacunaId)
+            ->where('asic_id', $asicId)
+            ->orderByDesc('fecha_llegada'); // más reciente primero
+
+        if ($lote) {
+            $query->where('lote', $lote);
+        } else {
+            $query->whereNull('lote');
+        }
+
+        $restante = $cantidad;
+        foreach ($query->get() as $carga) {
+            if ($restante <= 0) break;
+            $espacio    = $carga->cantidad - $carga->cantidad_disponible;
+            $restaurar  = min($restante, $espacio);
+            if ($restaurar > 0) {
+                $carga->increment('cantidad_disponible', $restaurar);
+                $restante -= $restaurar;
+            }
+        }
     }
 
     // ----------------------------------------------------------------
@@ -53,11 +100,8 @@ class DespachoController extends Controller
     // ----------------------------------------------------------------
     public function index(Request $request): View
     {
-        $asic = Asic::first();
-
-        $modulos = Modulo::where('asic_id', $asic->id)
-            ->orderBy('nombre')
-            ->get()
+        $asic    = Asic::first();
+        $modulos = Modulo::where('asic_id', $asic->id)->orderBy('nombre')->get()
             ->map(function ($modulo) {
                 $despachos = Despacho::where('modulo_id', $modulo->id);
                 $modulo->total_registros = $despachos->count();
@@ -68,45 +112,24 @@ class DespachoController extends Controller
 
         $query = Despacho::with(['vacuna', 'modulo', 'responsable']);
 
-        if ($request->filled('modulo_id')) {
-            $query->where('modulo_id', $request->modulo_id);
-        }
-        if ($request->filled('vacuna')) {
-            $query->whereHas('vacuna', fn($q) => $q->where('nombre', 'like', '%' . $request->vacuna . '%'));
-        }
-        if ($request->filled('responsable')) {
-            $query->whereHas('responsable', fn($q) =>
-                $q->where('nombre', 'like', '%' . $request->responsable . '%')
-                  ->orWhere('apellido', 'like', '%' . $request->responsable . '%')
-                  ->orWhere('cedula', $request->responsable)
-            );
-        }
-        if ($request->filled('fecha_desde')) {
-            $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
-        }
-        if ($request->filled('fecha_hasta')) {
-            $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
-        }
-        if ($request->filled('cantidad_min')) {
-            $query->where('cantidad', '>=', $request->cantidad_min);
-        }
-        if ($request->filled('cantidad_max')) {
-            $query->where('cantidad', '<=', $request->cantidad_max);
-        }
+        if ($request->filled('modulo_id'))  $query->where('modulo_id', $request->modulo_id);
+        if ($request->filled('vacuna'))     $query->whereHas('vacuna', fn($q) => $q->where('nombre', 'like', '%'.$request->vacuna.'%'));
+        if ($request->filled('responsable')) $query->whereHas('responsable', fn($q) =>
+            $q->where('nombre', 'like', '%'.$request->responsable.'%')
+              ->orWhere('apellido', 'like', '%'.$request->responsable.'%')
+              ->orWhere('cedula', $request->responsable)
+        );
+        if ($request->filled('fecha_desde'))   $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
+        if ($request->filled('fecha_hasta'))   $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
+        if ($request->filled('cantidad_min'))  $query->where('cantidad', '>=', $request->cantidad_min);
+        if ($request->filled('cantidad_max'))  $query->where('cantidad', '<=', $request->cantidad_max);
 
-        $despachos = $query->orderBy('fecha_envio', 'desc')
-            ->paginate(15)
-            ->withQueryString();
+        $despachos          = $query->orderBy('fecha_envio', 'desc')->paginate(15)->withQueryString();
+        $moduloSeleccionado = $request->filled('modulo_id') ? Modulo::find($request->modulo_id) : null;
+        $vacunas            = Vacuna::orderBy('nombre')->get();
 
-        $moduloSeleccionado = $request->filled('modulo_id')
-            ? Modulo::find($request->modulo_id)
-            : null;
-
-        $vacunas = Vacuna::orderBy('nombre')->get();
-
-        return view('despacho.index', compact(
-            'despachos', 'modulos', 'moduloSeleccionado', 'vacunas', 'asic'
-        ))->with('i', ($request->input('page', 1) - 1) * $despachos->perPage());
+        return view('despacho.index', compact('despachos', 'modulos', 'moduloSeleccionado', 'vacunas', 'asic'))
+            ->with('i', ($request->input('page', 1) - 1) * $despachos->perPage());
     }
 
     // ----------------------------------------------------------------
@@ -131,30 +154,25 @@ class DespachoController extends Controller
         $asic  = Asic::first();
         $datos = $request->validated();
 
-        $stock = $this->calcularStock($datos['vacuna_id'], $asic->id);
+        // Verificar stock del lote específico
+        $stockLote = Carga::where('vacuna_id', $datos['vacuna_id'])
+            ->where('asic_id', $asic->id)
+            ->where('lote', $datos['lote'])
+            ->sum('cantidad_disponible');
 
-        if ($datos['cantidad'] > $stock) {
-            return Redirect::back()->withInput()->with('error_stock', [
-                'disponible' => $stock,
-                'solicitado' => $datos['cantidad'],
-                'vacuna'     => Vacuna::find($datos['vacuna_id'])?->nombre,
+        if ($datos['cantidad'] > $stockLote) {
+            return Redirect::back()->withInput()->withErrors([
+                'cantidad' => "El lote {$datos['lote']} solo tiene {$stockLote} unidades disponibles.",
             ]);
         }
 
-        // Verificar que el lote seleccionado tiene stock suficiente
-        if (!empty($datos['lote'])) {
-            $stockLote = $this->calcularStockLote($datos['vacuna_id'], $datos['lote']);
-            if ($datos['cantidad'] > $stockLote) {
-                return Redirect::back()->withInput()->withErrors([
-                    'lote' => "El lote {$datos['lote']} solo tiene {$stockLote} unidades disponibles.",
-                ]);
-            }
-        }
+        // Descontar de carga
+        $this->deducirDeCarga($datos['vacuna_id'], $asic->id, $datos['lote'], $datos['cantidad']);
 
         Despacho::create(array_merge($datos, ['asic_id' => $asic->id]));
 
         return Redirect::route('despachos.index')
-            ->with('success', 'Despacho registrado exitosamente.');
+            ->with('success', 'Despacho registrado y stock descontado del lote ' . $datos['lote'] . '.');
     }
 
     // ----------------------------------------------------------------
@@ -163,41 +181,27 @@ class DespachoController extends Controller
     public function storeBulk(Request $request): RedirectResponse
     {
         $request->validate([
-            'despachos'                       => 'required|array|min:1',
-            'despachos.*.vacuna_id'           => 'required|exists:vacuna,id',
-            'despachos.*.modulo_id'           => 'required|exists:modulo,id',
-            'despachos.*.responsable_envio'   => 'required|exists:personal,cedula',
-            'despachos.*.fecha_envio'         => 'required|date|before_or_equal:today',
-            'despachos.*.lote'                => 'nullable|string|max:50',
-            'despachos.*.cantidad'            => 'required|integer|min:1',
-        ], [
-            'despachos.required'                      => 'Debes agregar al menos un despacho.',
-            'despachos.*.vacuna_id.required'          => 'Selecciona una vacuna en todas las filas.',
-            'despachos.*.modulo_id.required'          => 'Selecciona un módulo en todas las filas.',
-            'despachos.*.responsable_envio.required'  => 'Selecciona un responsable en todas las filas.',
-            'despachos.*.fecha_envio.required'        => 'Ingresa la fecha en todas las filas.',
-            'despachos.*.fecha_envio.before_or_equal' => 'La fecha no puede ser futura.',
-            'despachos.*.cantidad.required'           => 'Ingresa la cantidad en todas las filas.',
-            'despachos.*.cantidad.min'                => 'La cantidad mínima es 1.',
+            'despachos'                     => 'required|array|min:1',
+            'despachos.*.vacuna_id'         => 'required|exists:vacuna,id',
+            'despachos.*.modulo_id'         => 'required|exists:modulo,id',
+            'despachos.*.responsable_envio' => 'required|exists:personal,cedula',
+            'despachos.*.fecha_envio'       => 'required|date|before_or_equal:today',
+            'despachos.*.lote'              => 'required|string|max:50',
+            'despachos.*.cantidad'          => 'required|integer|min:1',
         ]);
 
         $asic    = Asic::first();
         $errores = [];
 
         foreach ($request->despachos as $i => $item) {
-            $stock = $this->calcularStock((int) $item['vacuna_id'], $asic->id);
-            if ((int) $item['cantidad'] > $stock) {
-                $vacuna    = Vacuna::find($item['vacuna_id']);
-                $errores[] = 'Fila ' . ($i + 1) . ": Stock insuficiente para <strong>{$vacuna?->nombre}</strong>. Disponible: {$stock}, solicitado: {$item['cantidad']}.";
-            }
+            $stockLote = Carga::where('vacuna_id', $item['vacuna_id'])
+                ->where('asic_id', $asic->id)
+                ->where('lote', $item['lote'])
+                ->sum('cantidad_disponible');
 
-            // Validar stock del lote si se especificó
-            if (!empty($item['lote'])) {
-                $stockLote = $this->calcularStockLote((int) $item['vacuna_id'], $item['lote']);
-                if ((int) $item['cantidad'] > $stockLote) {
-                    $vacuna    = Vacuna::find($item['vacuna_id']);
-                    $errores[] = 'Fila ' . ($i + 1) . ": El lote <strong>{$item['lote']}</strong> de {$vacuna?->nombre} solo tiene {$stockLote} unidades disponibles.";
-                }
+            if ((int) $item['cantidad'] > $stockLote) {
+                $vacuna    = Vacuna::find($item['vacuna_id']);
+                $errores[] = 'Fila ' . ($i + 1) . ": El lote <strong>{$item['lote']}</strong> de {$vacuna?->nombre} solo tiene {$stockLote} unidades disponibles.";
             }
         }
 
@@ -206,13 +210,14 @@ class DespachoController extends Controller
         }
 
         foreach ($request->despachos as $item) {
+            $this->deducirDeCarga((int) $item['vacuna_id'], $asic->id, $item['lote'], (int) $item['cantidad']);
             Despacho::create([
                 'asic_id'           => $asic->id,
                 'vacuna_id'         => $item['vacuna_id'],
                 'modulo_id'         => $item['modulo_id'],
                 'responsable_envio' => $item['responsable_envio'],
                 'fecha_envio'       => $item['fecha_envio'],
-                'lote'              => $item['lote'] ?? null,
+                'lote'              => $item['lote'],
                 'cantidad'          => $item['cantidad'],
             ]);
         }
@@ -238,17 +243,14 @@ class DespachoController extends Controller
     // ----------------------------------------------------------------
     public function edit($id): View
     {
-        $despacho = Despacho::findOrFail($id);
-        $asic     = Asic::first();
-        $vacunas  = Vacuna::orderBy('nombre')->get();
-        $modulos  = Modulo::where('asic_id', $asic->id)->orderBy('nombre')->get();
-        $personal = Personal::where('asic_id', $asic->id)->orderBy('nombre')->get();
-
+        $despacho        = Despacho::findOrFail($id);
+        $asic            = Asic::first();
+        $vacunas         = Vacuna::orderBy('nombre')->get();
+        $modulos         = Modulo::where('asic_id', $asic->id)->orderBy('nombre')->get();
+        $personal        = Personal::where('asic_id', $asic->id)->orderBy('nombre')->get();
         $stockDisponible = $this->calcularStock($despacho->vacuna_id, $asic->id, $despacho->id);
 
-        return view('despacho.edit', compact(
-            'despacho', 'asic', 'vacunas', 'modulos', 'personal', 'stockDisponible'
-        ));
+        return view('despacho.edit', compact('despacho', 'asic', 'vacunas', 'modulos', 'personal', 'stockDisponible'));
     }
 
     // ----------------------------------------------------------------
@@ -258,30 +260,31 @@ class DespachoController extends Controller
     {
         $asic  = Asic::first();
         $datos = $request->validated();
-        $stock = $this->calcularStock($datos['vacuna_id'], $asic->id, $despacho->id);
 
-        if ($datos['cantidad'] > $stock) {
-            return Redirect::back()->withInput()->with('error_stock', [
-                'disponible' => $stock,
-                'solicitado' => $datos['cantidad'],
-                'vacuna'     => Vacuna::find($datos['vacuna_id'])?->nombre,
+        // Restaurar stock del lote anterior
+        $this->restaurarACarga($despacho->vacuna_id, $asic->id, $despacho->lote, $despacho->cantidad);
+
+        // Verificar stock del nuevo lote
+        $stockLote = Carga::where('vacuna_id', $datos['vacuna_id'])
+            ->where('asic_id', $asic->id)
+            ->where('lote', $datos['lote'])
+            ->sum('cantidad_disponible');
+
+        if ($datos['cantidad'] > $stockLote) {
+            // Revertir la restauración antes de salir
+            $this->deducirDeCarga($despacho->vacuna_id, $asic->id, $despacho->lote, $despacho->cantidad);
+            return Redirect::back()->withInput()->withErrors([
+                'cantidad' => "El lote {$datos['lote']} solo tiene {$stockLote} unidades disponibles.",
             ]);
         }
 
-        if (!empty($datos['lote'])) {
-            // Al editar, excluir el lote del mismo despacho para no contarlo doble
-            $stockLote = $this->calcularStockLote($datos['vacuna_id'], $datos['lote'], $despacho->id);
-            if ($datos['cantidad'] > $stockLote) {
-                return Redirect::back()->withInput()->withErrors([
-                    'lote' => "El lote {$datos['lote']} solo tiene {$stockLote} unidades disponibles.",
-                ]);
-            }
-        }
+        // Descontar del nuevo lote
+        $this->deducirDeCarga($datos['vacuna_id'], $asic->id, $datos['lote'], $datos['cantidad']);
 
         $despacho->update($datos);
 
         return Redirect::route('despachos.index')
-            ->with('success', 'Despacho actualizado exitosamente.');
+            ->with('success', 'Despacho actualizado y stock ajustado correctamente.');
     }
 
     // ----------------------------------------------------------------
@@ -289,14 +292,19 @@ class DespachoController extends Controller
     // ----------------------------------------------------------------
     public function destroy($id): RedirectResponse
     {
-        Despacho::findOrFail($id)->delete();
+        $despacho = Despacho::findOrFail($id);
+
+        // Restaurar al lote de carga
+        $this->restaurarACarga($despacho->vacuna_id, $despacho->asic_id, $despacho->lote, $despacho->cantidad);
+
+        $despacho->delete();
 
         return Redirect::route('despachos.index')
-            ->with('success', 'Despacho eliminado exitosamente.');
+            ->with('success', 'Despacho eliminado y stock restaurado al lote de carga.');
     }
 
     // ----------------------------------------------------------------
-    // AJAX: stock en tiempo real
+    // AJAX: checkStock — usa cantidad_disponible directamente
     // ----------------------------------------------------------------
     public function checkStock(Request $request)
     {
@@ -304,32 +312,27 @@ class DespachoController extends Controller
         $vacuna   = Vacuna::findOrFail($vacunaId);
         $asic     = Asic::first();
 
-        $entrado    = Carga::where('vacuna_id', $vacunaId)->where('asic_id', $asic->id)->sum('cantidad');
-        $despachado = Despacho::where('vacuna_id', $vacunaId)->where('asic_id', $asic->id)->sum('cantidad');
-        $perdido    = Perdida::where('vacuna_id', $vacunaId)->whereNull('modulo_id')->sum('cantidad');
-        $stock      = max(0, $entrado - $despachado - $perdido);
-
-        // Lotes con stock REAL disponible
-        $lotes = DB::table('carga')
-            ->select('lote', DB::raw('SUM(cantidad) as entrado'), DB::raw('MIN(fecha_vencimiento) as fecha_vencimiento'))
-            ->where('vacuna_id', $vacunaId)
+        // Stock total = suma de cantidad_disponible - pérdidas ASIC
+        $disponibleTotal = Carga::where('vacuna_id', $vacunaId)
             ->where('asic_id', $asic->id)
-            ->whereNotNull('lote')
+            ->sum('cantidad_disponible');
+
+        $perdido = Perdida::where('vacuna_id', $vacunaId)->whereNull('modulo_id')->sum('cantidad');
+        $stock   = max(0, $disponibleTotal - $perdido);
+
+        // Lotes con cantidad_disponible > 0, agrupados
+        $lotes = Carga::where('vacuna_id', $vacunaId)
+            ->where('asic_id', $asic->id)
+            ->where('cantidad_disponible', '>', 0)
+            ->select(
+                'lote',
+                DB::raw('SUM(cantidad_disponible) as disponible'),
+                DB::raw('SUM(cantidad) as cantidad_original'),
+                DB::raw('MIN(fecha_vencimiento) as fecha_vencimiento')
+            )
             ->groupBy('lote')
-            ->get()
-            ->map(function ($lote) use ($vacunaId) {
-                $lote->despachado = Despacho::where('vacuna_id', $vacunaId)
-                    ->where('lote', $lote->lote)
-                    ->sum('cantidad');
-                $lote->perdido    = Perdida::where('vacuna_id', $vacunaId)
-                    ->where('lote', $lote->lote)
-                    ->whereNull('modulo_id')
-                    ->sum('cantidad');
-                $lote->disponible = max(0, $lote->entrado - $lote->despachado - $lote->perdido);
-                return $lote;
-            })
-            ->filter(fn($l) => $l->disponible > 0)
-            ->values();
+            ->orderBy('fecha_vencimiento') // mostrar más próximos a vencer primero
+            ->get();
 
         return response()->json([
             'vacuna' => $vacuna->nombre,
@@ -339,48 +342,19 @@ class DespachoController extends Controller
     }
 
     // ----------------------------------------------------------------
-    // HELPER PRIVADO: stock de un lote específico
-    // ----------------------------------------------------------------
-    private function calcularStockLote(int $vacunaId, string $lote, ?int $excludeDespachoId = null): int
-    {
-        $entrado = Carga::where('vacuna_id', $vacunaId)
-            ->where('lote', $lote)
-            ->sum('cantidad');
-
-        $query = Despacho::where('vacuna_id', $vacunaId)->where('lote', $lote);
-        if ($excludeDespachoId) {
-            $query->where('id', '!=', $excludeDespachoId);
-        }
-        $despachado = $query->sum('cantidad');
-
-        $perdido = Perdida::where('vacuna_id', $vacunaId)
-            ->where('lote', $lote)
-            ->whereNull('modulo_id')
-            ->sum('cantidad');
-
-        return max(0, $entrado - $despachado - $perdido);
-    }
-
-    // ----------------------------------------------------------------
-    // PDFs (sin cambios en lógica, solo se mantienen)
+    // PDFs (sin cambios)
     // ----------------------------------------------------------------
     public function reporteModulo(Request $request, $modulo_id)
     {
         $asic   = Asic::first();
         $modulo = Modulo::findOrFail($modulo_id);
-
-        $query = Despacho::with(['vacuna', 'responsable'])->where('modulo_id', $modulo_id);
+        $query  = Despacho::with(['vacuna', 'responsable'])->where('modulo_id', $modulo_id);
 
         if ($request->filled('mes') && $request->filled('anio')) {
-            $query->whereMonth('fecha_envio', $request->mes)
-                  ->whereYear('fecha_envio', $request->anio);
+            $query->whereMonth('fecha_envio', $request->mes)->whereYear('fecha_envio', $request->anio);
         } else {
-            if ($request->filled('fecha_desde')) {
-                $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
-            }
-            if ($request->filled('fecha_hasta')) {
-                $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
-            }
+            if ($request->filled('fecha_desde')) $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
+            if ($request->filled('fecha_hasta'))  $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
         }
 
         $despachos      = $query->orderBy('fecha_envio', 'desc')->get();
@@ -391,7 +365,6 @@ class DespachoController extends Controller
             'cantidad'  => $g->sum('cantidad'),
             'registros' => $g->count(),
         ])->values();
-
         $periodo = ($request->filled('mes') && $request->filled('anio'))
             ? Carbon::createFromDate($request->anio, $request->mes, 1)->translatedFormat('F Y')
             : (($request->fecha_desde ?? '...') . ' → ' . ($request->fecha_hasta ?? '...'));
@@ -407,16 +380,9 @@ class DespachoController extends Controller
     {
         $asic  = Asic::first();
         $query = Despacho::with(['modulo', 'responsable'])->where('asic_id', $asic->id);
-
-        if ($request->filled('vacuna_id')) {
-            $query->where('vacuna_id', $request->vacuna_id);
-        }
-        if ($request->filled('fecha_desde')) {
-            $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
-        }
-        if ($request->filled('fecha_hasta')) {
-            $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
-        }
+        if ($request->filled('vacuna_id')) $query->where('vacuna_id', $request->vacuna_id);
+        if ($request->filled('fecha_desde')) $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
+        if ($request->filled('fecha_hasta'))  $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
 
         $despachos      = $query->orderBy('fecha_envio', 'desc')->get();
         $vacuna         = Vacuna::find($request->vacuna_id);
@@ -440,30 +406,15 @@ class DespachoController extends Controller
     {
         $asic  = Asic::first();
         $query = Despacho::with(['vacuna', 'modulo', 'responsable'])->where('asic_id', $asic->id);
-
-        if ($request->filled('fecha_desde')) {
-            $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
-        }
-        if ($request->filled('fecha_hasta')) {
-            $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
-        }
-        if ($request->filled('modulo_id')) {
-            $query->where('modulo_id', $request->modulo_id);
-        }
+        if ($request->filled('fecha_desde')) $query->whereDate('fecha_envio', '>=', $request->fecha_desde);
+        if ($request->filled('fecha_hasta'))  $query->whereDate('fecha_envio', '<=', $request->fecha_hasta);
+        if ($request->filled('modulo_id'))    $query->where('modulo_id', $request->modulo_id);
 
         $despachos      = $query->orderBy('fecha_envio', 'desc')->get();
         $totalDosis     = $despachos->sum('cantidad');
         $generadoEn     = Carbon::now()->format('d/m/Y H:i');
-        $resumenModulos = $despachos->groupBy('modulo_id')->map(fn($g) => [
-            'nombre'    => $g->first()->modulo?->nombre ?? '—',
-            'cantidad'  => $g->sum('cantidad'),
-            'registros' => $g->count(),
-        ])->values();
-        $resumenVacunas = $despachos->groupBy('vacuna_id')->map(fn($g) => [
-            'nombre'    => $g->first()->vacuna?->nombre ?? '—',
-            'cantidad'  => $g->sum('cantidad'),
-            'registros' => $g->count(),
-        ])->values();
+        $resumenModulos = $despachos->groupBy('modulo_id')->map(fn($g) => ['nombre' => $g->first()->modulo?->nombre ?? '—', 'cantidad' => $g->sum('cantidad'), 'registros' => $g->count()])->values();
+        $resumenVacunas = $despachos->groupBy('vacuna_id')->map(fn($g) => ['nombre' => $g->first()->vacuna?->nombre ?? '—', 'cantidad' => $g->sum('cantidad'), 'registros' => $g->count()])->values();
 
         $pdf = Pdf::loadView('despacho.reportes.periodo', compact(
             'despachos', 'asic', 'totalDosis', 'generadoEn', 'resumenModulos', 'resumenVacunas'

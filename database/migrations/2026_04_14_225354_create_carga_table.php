@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('carga', function (Blueprint $table) {
@@ -19,16 +16,14 @@ return new class extends Migration
             $table->date('fecha_llegada');
             $table->date('fecha_vencimiento')->nullable();
             $table->integer('cantidad');
+            $table->integer('cantidad_disponible')->default(0); 
             $table->text('observaciones')->nullable();
             $table->timestamps();
-            
+
             $table->index(['asic_id', 'vacuna_id'], 'idx_carga_asig');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('carga');

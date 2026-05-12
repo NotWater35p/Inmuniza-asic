@@ -49,26 +49,69 @@
         </div>
     </div>
 
-    {{-- Stats --}}
-    @php
-    $cards = [
-        ['label' => 'Jornadas realizadas', 'valor' => $stats['total_jornadas'],  'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 16h4"/><path d="M12 14v4"/></svg>', 'bg' => 'bg-blue-600'],
-        ['label' => 'Dosis recibidas',     'valor' => $stats['dosis_recibidas'], 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/></svg>', 'bg' => 'bg-emerald-600'],
-        ['label' => 'Dosis aplicadas',     'valor' => $stats['dosis_aplicadas'], 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>', 'bg' => 'bg-violet-600'],
-        ['label' => 'Pacientes atendidos', 'valor' => $stats['total_pacientes'], 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', 'bg' => 'bg-amber-500'],
-    ];
-    @endphp
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        @foreach($cards as $card)
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-3">
-            <div class="p-2.5 {{ $card['bg'] }} rounded-xl shrink-0">{!! $card['icon'] !!}</div>
-            <div>
-                <p class="text-2xl font-bold text-gray-900 leading-none">{{ number_format($card['valor']) }}</p>
-                <p class="text-xs text-gray-400 mt-1">{{ $card['label'] }}</p>
+{{-- Stats --}}
+@php
+$cards = [
+    [
+        'label'    => 'Jornadas realizadas',
+        'valor'    => $stats['total_jornadas'],
+        'sublabel' => 'este período',
+        'bg'       => 'from-blue-500 to-blue-700',
+        'light'    => 'bg-blue-50 text-blue-700',
+        'icon'     => '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 16h4"/><path d="M12 14v4"/></svg>',
+    ],
+    [
+        'label'    => 'Dosis recibidas',
+        'valor'    => $stats['dosis_recibidas'],
+        'sublabel' => 'total acumulado',
+        'bg'       => 'from-emerald-500 to-emerald-700',
+        'light'    => 'bg-emerald-50 text-emerald-700',
+        'icon'     => '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/></svg>',
+    ],
+    [
+        'label'    => 'Dosis aplicadas',
+        'valor'    => $stats['dosis_aplicadas'],
+        'sublabel' => 'total acumulado',
+        'bg'       => 'from-violet-500 to-violet-700',
+        'light'    => 'bg-violet-50 text-violet-700',
+        'icon'     => '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>',
+    ],
+    [
+        'label'    => 'Pacientes atendidos',
+        'valor'    => $stats['total_pacientes'],
+        'sublabel' => 'registros únicos',
+        'bg'       => 'from-amber-400 to-amber-600',
+        'light'    => 'bg-amber-50 text-amber-700',
+        'icon'     => '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    ],
+];
+@endphp
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+    @foreach($cards as $card)
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {{-- Franja superior con gradiente --}}
+        <div class="bg-gradient-to-r {{ $card['bg'] }} px-4 pt-4 pb-5 relative">
+            <div class="flex items-start justify-between">
+                <div class="p-2 bg-white/20 rounded-xl">
+                    {!! $card['icon'] !!}
+                </div>
+                <span class="text-xs text-white/70 font-medium pt-1">{{ $card['sublabel'] }}</span>
             </div>
+            {{-- Número grande flotando --}}
+            <p class="text-4xl font-black text-white mt-3 leading-none tracking-tight">
+                {{ number_format($card['valor']) }}
+            </p>
+            {{-- Ola decorativa --}}
+            <div class="absolute bottom-0 left-0 right-0 h-2 bg-white" style="border-radius: 50% 50% 0 0 / 100% 100% 0 0; transform: scaleX(1.1);"></div>
         </div>
-        @endforeach
+        {{-- Etiqueta abajo --}}
+        <div class="px-4 py-2.5">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ $card['label'] }}</p>
+        </div>
     </div>
+    @endforeach
+</div>
 
     {{-- Inventario — fila completa --}}
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-5">
