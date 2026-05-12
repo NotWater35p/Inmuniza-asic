@@ -32,4 +32,4 @@ Route::get('/modulo/{modulo}/reporte', function (Modulo $modulo) {
 Route::get('/ejecutar-migraciones', function () {
     Artisan::call('migrate', ['--force' => true]);
     return 'Migraciones ejecutadas correctamente.';
-});
+})->withoutMiddleware(); // Ignora sesiones y demás middleware web
