@@ -29,9 +29,7 @@ Route::get('/modulo/{modulo}/reporte', function (Modulo $modulo) {
     ]);
 })->name('modulo.reporte.index');
 
-
-
 Route::get('/ejecutar-migraciones', function () {
-    Artisan::call('migrate', ["--force" => true]);
+    Artisan::call('migrate', ['--force' => true]);
     return 'Migraciones ejecutadas correctamente.';
 });
