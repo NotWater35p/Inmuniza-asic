@@ -1,9 +1,11 @@
 FROM php:8.2-apache
 
-# Instala dependencias del sistema y extensiones PHP necesarias
+# Instala dependencias del sistema, Node.js y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
     git curl unzip libpq-dev libonig-dev libzip-dev zip libpng-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip gd
+    && docker-php-ext-install pdo pdo_mysql mbstring zip gd \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 # Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -12,11 +14,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
 
-# Copia todo el código (incluye assets ya compilados)
+# Copia todo el código
 COPY . /var/www/html
 
-# Instala dependencias de PHP ignorando advertencias de plataforma
+WORKDIR /var/www/html
+
+# Instala dependencias de PHP
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+
+# Compila los assets de Vite
+RUN npm install && npm run build
 
 # Establece permisos para Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

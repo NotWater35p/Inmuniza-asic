@@ -16,13 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
     },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-         $middleware->alias([
-        'no.cache' => \App\Http\Middleware\PreventBackHistory::class, 
-        'nivel.acceso' => \App\Http\Middleware\NivelAcceso::class,
-    ]);
+        $middleware->trustProxies(at: '*');
+        $middleware->alias([
+            'no.cache' => \App\Http\Middleware\PreventBackHistory::class,
+            'nivel.acceso' => \App\Http\Middleware\NivelAcceso::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
-
-
