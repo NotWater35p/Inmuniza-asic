@@ -94,11 +94,11 @@
                 <!-- ========================= CARRUSEL DE IMAGENES ================================================== -->
                 <div class="carousel">
                     <div class="images-wrapper">
-                        <img src="{{ asset('img/irasutoya/medic-medicamentos.png') }}" alt=""
+                        <img src="{{ asset('img/medic-medicamentos.png') }}" alt=""
                             class="show image img-1">
-                        <img src="{{ asset('img/irasutoya/medic-mama.png') }}" alt="" class="image img-2">
-                        <img src="{{ asset('img/irasutoya/medic-registro.png') }}" alt="" class="image img-3">
-                        <img src="{{ asset('img/irasutoya/medic-kit.png') }}" alt="" class="image img-4">
+                        <img src="{{ asset('img/medic-mama.png') }}" alt="" class="image img-2">
+                        <img src="{{ asset('img/medic-registro.png') }}" alt="" class="image img-3">
+                        <img src="{{ asset('img/medic-kit.png') }}" alt="" class="image img-4">
                     </div>
 
                     <!-- ============================= TEXTO DEL CARRUSEL ================================================== -->
