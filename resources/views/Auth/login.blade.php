@@ -98,7 +98,7 @@
                             class="show image img-1">
                         <img src="{{ asset('img/medic-mama.png') }}" alt="" class="image img-2">
                         <img src="{{ asset('img/medic-registro.png') }}" alt="" class="image img-3">
-                        <img src="{{ asset('img/medic-kit.png') }}" alt="" class="image img-4">
+                        <img src="{{ asset('img/report.png') }}" alt="" class="image img-4">
                     </div>
 
                     <!-- ============================= TEXTO DEL CARRUSEL ================================================== -->
