@@ -14,6 +14,7 @@ use App\Http\Controllers\ModuloController;
 use App\Http\Controllers\ModuloInventarioController;
 use App\Http\Controllers\ModuloPerdidaController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\PerdidaController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\ReporteModuloController;
 use App\Http\Controllers\RepresentanteController;
@@ -75,9 +76,9 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
 
         // ----- Inventario central (ASIC) -----
         Route::get('inventario', [InventarioController::class, 'index'])->name('inventario.index');
-        Route::get('inventario/lotes/{vacuna}', [InventarioController::class, 'lotes'])->name('inventario.lotes');
-        Route::post('inventario/perdida', [InventarioController::class, 'storePerdida'])->name('inventario.perdida.store');
-
+        Route::get('inventario/lotes/{vacunaId}', [InventarioController::class, 'lotes'])->name('inventario.lotes');
+        Route::post('inventario/perdida', [InventarioController::class, 'storePerdida'])->name('inventario.storePerdida');
+        
         // ----- Marcas (fabricantes) -----
         Route::get('marcas/pdf/universal', [MarcaController::class, 'generarPDFUniversal'])->name('marcas.pdf.universal');
         Route::get('marcas/{id}/pdf', [MarcaController::class, 'generarPDF'])->name('marcas.pdf');
@@ -154,6 +155,7 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
     Route::get('modulo/{modulo}/reporte/excel', [ReporteModuloController::class, 'excel'])->name('modulo.reporte.excel');
 
     // ----- Módulo: pérdidas -----
+    Route::resource('perdida', PerdidaController::class);
     Route::get('modulo/{modulo}/perdidas', [ModuloPerdidaController::class, 'index'])->name('modulo.perdidas.index');
     Route::post('modulo/{modulo}/perdidas', [ModuloPerdidaController::class, 'store'])->name('modulo.perdidas.store');
 

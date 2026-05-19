@@ -2,7 +2,7 @@
 @section('title', 'Descargo Rápido de Vacunas')
 
 @section('content')
-<div class="px-4 py-6 mx-auto max-w-4xl">
+<div class="px-4 py-6 mx-auto max-w-4xl bg-white/90 backdrop-blur-lg shadow-sm rounded-lg">
 
     {{-- Header --}}
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

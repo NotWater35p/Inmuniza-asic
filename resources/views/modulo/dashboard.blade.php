@@ -2,7 +2,7 @@
 @section('title', 'Mi Módulo · ' . ($modulo?->nombre ?? 'Sin asignar'))
 
 @section('content')
-<div class="px-4 py-6 mx-auto max-w-7xl">
+<div class="px-4 py-6 mx-auto max-w-7xl bg-white/90 backdrop-blur-lg shadow-sm rounded-lg">
 
     @if(isset($sinModulo) && $sinModulo)
     <div class="flex flex-col items-center justify-center py-24 text-center text-gray-400">
@@ -112,7 +112,7 @@
                 </div>
 
                 {{-- Número grande --}}
-                <p class="text-3xl sm:text-4xl font-black {{ $card['num'] }} leading-none tabular-nums tracking-tight">
+                <p class="text-xs sm:text-4xl font-black {{ $card['num'] }} leading-none tabular-nums tracking-tight">
                     {{ number_format($card['valor']) }}
                 </p>
 

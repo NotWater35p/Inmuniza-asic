@@ -13,74 +13,86 @@ class InventarioController extends Controller
 {
     public function index(Request $request): View
     {
-        // Traemos vacunas con totales calculados en una sola query
+        $hoy = now()->toDateString();
+
         $vacunas = Vacuna::with(['marca'])
-            ->withSum('cargas', 'cantidad')           // total entrado
-            ->withSum('despachos', 'cantidad')         // total despachado
-            ->withSum('perdidas', 'cantidad')          // total perdido
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('nombre', 'like', "%{$request->search}%");
-            })
+            ->when($request->filled('buscar'), fn($q) =>
+                $q->where('nombre', 'like', "%{$request->buscar}%"))
             ->orderBy('nombre')
-            ->get()
-            ->map(function ($vacuna) {
-                $entrado    = $vacuna->cargas_sum_cantidad    ?? 0;
-                $despachado = $vacuna->despachos_sum_cantidad ?? 0;
-                $perdido    = $vacuna->perdidas_sum_cantidad  ?? 0;
-                $vacuna->stock_actual = $entrado - $despachado - $perdido;
-                $vacuna->total_entrado    = $entrado;
+            ->paginate(20)
+            ->through(function ($vacuna) use ($hoy) {
+
+                // Stock vigente (excluye lotes vencidos)
+                $stockDisponible = (int) DB::table('carga')
+                    ->where('vacuna_id', $vacuna->id)
+                    ->where(fn($q) => $q->whereNull('fecha_vencimiento')
+                                        ->orWhere('fecha_vencimiento', '>=', $hoy))
+                    ->sum('cantidad_disponible');
+
+                // Stock bloqueado en lotes vencidos con unidades restantes
+                $stockVencido = (int) DB::table('carga')
+                    ->where('vacuna_id', $vacuna->id)
+                    ->whereNotNull('fecha_vencimiento')
+                    ->where('fecha_vencimiento', '<', $hoy)
+                    ->where('cantidad_disponible', '>', 0)
+                    ->sum('cantidad_disponible');
+
+                $despachado = (int) DB::table('despacho')->where('vacuna_id', $vacuna->id)->sum('cantidad');
+                $perdido    = (int) DB::table('perdida')
+                    ->where('vacuna_id', $vacuna->id)
+                    ->whereNull('modulo_id')
+                    ->sum('cantidad');
+
+                $vacuna->stock_actual     = max(0, $stockDisponible - $perdido);
+                $vacuna->stock_vencido    = $stockVencido;
+                $vacuna->has_vencidos     = $stockVencido > 0;  // flag campana naranja
                 $vacuna->total_despachado = $despachado;
                 $vacuna->total_perdido    = $perdido;
+
                 return $vacuna;
             });
 
-        return view('inventario.index', compact('vacunas'));
+        // Todas las vacunas para el select del modal (sin paginar)
+        $todasLasVacunas = Vacuna::orderBy('nombre')->get(['id', 'nombre']);
+
+        return view('inventario.index', compact('vacunas', 'todasLasVacunas'));
     }
 
-    /**
-     * Devuelve el detalle de lotes por vacuna (AJAX)
-     */
+    // AJAX: detalle de lotes por vacuna
     public function lotes(int $vacunaId)
     {
+        $hoy    = now()->toDateString();
         $vacuna = Vacuna::findOrFail($vacunaId);
 
-        // Lotes de cargas agrupados
         $lotes = DB::table('carga')
             ->select(
                 'lote',
                 DB::raw('SUM(cantidad) as entrado'),
+                DB::raw('SUM(cantidad_disponible) as disponible_bruto'),
                 DB::raw('MIN(fecha_vencimiento) as fecha_vencimiento')
             )
             ->where('vacuna_id', $vacunaId)
             ->whereNotNull('lote')
             ->groupBy('lote')
+            ->orderBy('fecha_vencimiento')
             ->get()
-            ->map(function ($lote) use ($vacunaId) {
-                // Despachado de ese lote
-                $lote->despachado = DB::table('despacho')
-                    ->where('vacuna_id', $vacunaId)
-                    ->where('lote', $lote->lote)
-                    ->sum('cantidad');
+            ->map(function ($lote) use ($vacunaId, $hoy) {
+                $despachado = (int) DB::table('despacho')
+                    ->where('vacuna_id', $vacunaId)->where('lote', $lote->lote)->sum('cantidad');
+                $perdido = (int) DB::table('perdida')
+                    ->where('vacuna_id', $vacunaId)->where('lote', $lote->lote)->sum('cantidad');
 
-                // Perdido de ese lote
-                $lote->perdido = DB::table('perdida')
-                    ->where('vacuna_id', $vacunaId)
-                    ->where('lote', $lote->lote)
-                    ->sum('cantidad');
-
-                $lote->disponible = $lote->entrado - $lote->despachado - $lote->perdido;
+                $lote->despachado = $despachado;
+                $lote->perdido    = $perdido;
+                $lote->disponible = max(0, (int) $lote->disponible_bruto - $perdido);
+                $lote->vencido    = $lote->fecha_vencimiento && $lote->fecha_vencimiento < $hoy;
                 return $lote;
             });
 
-        return response()->json([
-            'vacuna' => $vacuna->nombre,
-            'lotes'  => $lotes,
-        ]);
+        return response()->json(['vacuna' => $vacuna->nombre, 'lotes' => $lotes]);
     }
 
-    /**
-     * Registrar pérdida
-     */
+    // Registrar pérdida del ASIC desde inventario
     public function storePerdida(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -89,12 +101,19 @@ class InventarioController extends Controller
             'cantidad'    => 'required|integer|min:1',
             'motivo'      => 'required|in:Vencimiento,Rotura,Cadena de frío,Otro',
             'observacion' => 'nullable|string|max:500',
-            'fecha'       => 'required|date',
+            'fecha'       => 'required|date|before_or_equal:today',
+        ], [
+            'vacuna_id.required'    => 'Selecciona una vacuna.',
+            'cantidad.required'     => 'La cantidad es obligatoria.',
+            'cantidad.min'          => 'La cantidad debe ser al menos 1.',
+            'motivo.required'       => 'Selecciona un motivo.',
+            'fecha.required'        => 'La fecha es obligatoria.',
+            'fecha.before_or_equal' => 'La fecha no puede ser futura.',
         ]);
 
-        Perdida::create($validated);
+        Perdida::create($validated); // modulo_id = null → pérdida del ASIC
 
         return redirect()->route('inventario.index')
-            ->with('success', 'Pérdida registrada correctamente.');
+            ->with('success', 'Pérdida del ASIC registrada correctamente.');
     }
 }
