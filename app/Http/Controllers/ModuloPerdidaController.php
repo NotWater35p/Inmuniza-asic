@@ -6,6 +6,7 @@ use App\Models\Modulo;
 use App\Models\Perdida;
 use App\Models\Vacuna;
 use App\Models\Tratamiento;
+use App\Models\Despacho;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +26,9 @@ class ModuloPerdidaController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('modulo.perdidas', compact('modulo', 'perdidas'));
+        $vacunas = Vacuna::orderBy('nombre')->get(); // ← agregar esta línea
+
+        return view('modulo.perdidas', compact('modulo', 'perdidas', 'vacunas')); // ← agregar $vacunas
     }
 
     /**
@@ -67,6 +70,22 @@ class ModuloPerdidaController extends Controller
         ]);
 
         return back()->with('success', 'Pérdida registrada correctamente.');
+    }
+
+    /**
+     * Elimina una pérdida del módulo.
+     * Permitido para jefe de módulo (su propio módulo) y admin/asistente.
+     */
+    public function destroy(Modulo $modulo, Perdida $perdida)
+    {
+        $this->autorizarAcceso($modulo);
+
+        // Verificar que la pérdida pertenece a este módulo
+        abort_if($perdida->modulo_id !== $modulo->id, 403);
+
+        $perdida->delete();
+
+        return back()->with('success', 'Pérdida eliminada correctamente.');
     }
 
     /**

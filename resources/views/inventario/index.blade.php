@@ -2,8 +2,7 @@
 @section('title', 'Inventario General')
 
 @section('content')
-<section class="bg-gray-50 p-3 sm:p-5 antialiased">
-    <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
+<div class="px-4 py-6 mx-auto max-w-7xl bg-white/90 rounded-lg shadow-sm backdrop-blur-sm">
         <div class="bg-white relative shadow-md sm:rounded-lg overflow-hidden">
 
             {{-- Cabecera --}}
@@ -14,7 +13,7 @@
                         {{ $vacunas->total() }} {{ $vacunas->total() == 1 ? 'producto' : 'productos' }}
                     </span>
                 </div>
-                <div class="flex-shrink-0">
+                <div class="shrink-0">
                     <a href="{{ route('perdida.index') }}"
                         class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
@@ -124,11 +123,11 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold {{ $badgeBg }} {{ $badgeText }}">
                                     {{ number_format($disp) }}
                                 </span>
-                                @if($v->stock_vencido > 0)
+                                {{-- @if($v->stock_vencido > 0)
                                 <p class="text-xs text-orange-500 mt-1 font-medium leading-none">
                                     +{{ $v->stock_vencido }} vencido(s)
                                 </p>
-                                @endif
+                                @endif --}}
                             </td>
 
                             {{-- Acciones --}}
@@ -139,7 +138,7 @@
                                     <div class="relative group/perdida">
                                         <button type="button"
                                             onclick="abrirModalPerdida({{ $v->id }}, '{{ addslashes($v->nombre) }}')"
-                                            class="w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-red-300 text-red-500 hover:bg-red-50 hover:border-red-500 transition-colors font-bold text-sm leading-none">
+                                            class="w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-gray-100 text-red-300 hover:border-danger hover:bg-danger hover:text-white transition-colors font-bold text-sm leading-none">
                                             !
                                         </button>
                                         <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/perdida:block z-20">
@@ -207,7 +206,7 @@
 
         </div>
     </div>
-</section>
+
 
 
 {{-- MODAL: Registrar Pérdida --}}
@@ -326,7 +325,6 @@
 
 @push('scripts')
 <script>
-// ── Fix fecha ISO de TiDB: "2026-11-24T00:00:00.000000Z" → "24/11/2026" ──
 function fmtFecha(f) {
     if (!f) return '—';
     const s = String(f).substring(0, 10);

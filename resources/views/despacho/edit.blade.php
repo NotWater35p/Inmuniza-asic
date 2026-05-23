@@ -358,7 +358,10 @@
                 data.lotes.forEach(lote => {
                     const opt = document.createElement('option');
                     opt.value = lote.lote;
-                    const vence = lote.fecha_vencimiento ? ` · Vence: ${lote.fecha_vencimiento}` : '';
+                    // Formatea ISO o YYYY-MM-DD → dd/mm/yyyy
+                    const _fv = lote.fecha_vencimiento ? new Date(lote.fecha_vencimiento) : null;
+                    const _fvStr = _fv ? String(_fv.getUTCDate()).padStart(2,'0')+'/'+String(_fv.getUTCMonth()+1).padStart(2,'0')+'/'+_fv.getUTCFullYear() : '';
+                    const vence = _fvStr ? ` · Vence: ${_fvStr}` : '';
                     // Al editar, el lote actual tiene su disponible + la cantidad del despacho actual
                     const dispMostrado = (lote.lote === loteActual)
                         ? lote.disponible + {{ $despacho->cantidad }}

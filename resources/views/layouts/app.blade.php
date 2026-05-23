@@ -225,7 +225,24 @@
                     </a>
                 </li>
 
-                {{-- Clínica accordion --}}
+                {{-- Catálogo de Vacunas --}}
+                <li>
+                    <a href="{{ route('vacunas.index') }}"
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'vacunas') ? 'active' : '' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m18 2 4 4" />
+                            <path d="m17 7 3-3" />
+                            <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
+                            <path d="m9 11 4 4" />
+                            <path d="m5 19-3 3" />
+                            <path d="m14 4 6 6" />
+                        </svg>
+                        <span>Catálogo Vacunas</span>
+                    </a>
+                </li>
+
+                                {{-- Clínica accordion --}}
                 <li>
                     <button data-accordion-target="#clinica-content" aria-expanded="false"
                         class="accordion-btn flex items-center justify-between px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'pacientes') || str_starts_with($rutaActual, 'jornadas') || str_starts_with($rutaActual, 'tratamientos') || str_starts_with($rutaActual, 'descargo') ? 'active' : '' }}">
@@ -242,7 +259,7 @@
                                 <path d="M9.5 12H16" />
                                 <path d="M9.5 16H14" />
                             </svg>
-                            <span>Clínica</span>
+                            <span>Pacientes</span>
                         </div>
                         <svg class="w-4 h-4 shrink-0 transition-transform duration-200" fill="currentColor"
                             viewBox="0 0 20 20">
@@ -263,7 +280,7 @@
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                                     <circle cx="12" cy="7" r="4" />
                                 </svg>
-                                Pacientes
+                                Pacientes Registrados
                             </a>
                         </li>
                         <li>
@@ -313,28 +330,12 @@
                     </ul>
                 </li>
 
-                {{-- Catálogo de Vacunas --}}
-                <li>
-                    <a href="{{ route('vacunas.index') }}"
-                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'vacunas') ? 'active' : '' }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m18 2 4 4" />
-                            <path d="m17 7 3-3" />
-                            <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
-                            <path d="m9 11 4 4" />
-                            <path d="m5 19-3 3" />
-                            <path d="m14 4 6 6" />
-                        </svg>
-                        <span>Catálogo Vacunas</span>
-                    </a>
-                </li>
 
                 @if($moduloJefe)
                 {{-- Pérdidas --}}
                 <li>
                     <a href="{{ route('modulo.perdidas.index', $moduloJefe->id) }}"
-                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-red-50 hover:text-red-600 w-full {{ str_starts_with($rutaActual, 'modulo.perdidas') ? 'active' : '' }}">
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'modulo.perdidas') ? 'active' : '' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
@@ -667,24 +668,6 @@
                                 Personal Registrado
                             </a>
                         </li>
-                        {{-- @if($esAdmin)
-                        <li>
-                            <a href="{{ route('users.index') }}"
-                                class="sidebar-link flex items-center gap-2.5 px-3 py-1.5 text-body text-sm rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'users') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M13.5 8h-3" />
-                                    <path
-                                        d="m15 2-1 2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3" />
-                                    <path d="M16.899 22A5 5 0 0 0 7.1 22" />
-                                    <path d="m9 2 3 6" />
-                                    <circle cx="12" cy="15" r="3" />
-                                </svg>
-                                Usuarios del Sistema
-                            </a>
-                        </li>
-                        @endif --}}
                     </ul>
                 </li>
 

@@ -37,4 +37,12 @@ class PerdidaController extends Controller
 
         return view('perdida.index', compact('perdidas', 'vacunas', 'modulos'));
     }
+
+    public function destroy(Perdida $perdida)
+    {
+        $perdida->delete();
+
+        return redirect()->route('perdida.index')
+            ->with('success', 'Pérdida eliminada correctamente.');
+    }
 }

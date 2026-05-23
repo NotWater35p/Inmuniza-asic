@@ -45,7 +45,7 @@
                         <div class="actual-form">
                             <div class="input-wrap">
                                 <input type="text" id="cedula" minlength="4" class="input-field"
-                                    autocomplete="off" name="cedula" required autofocus value="{{ old('cedula') }}" inputmode="numeric" pattern="\d+">
+                                    autocomplete="off" name="cedula" required value="{{ old('cedula') }}" inputmode="numeric" pattern="\d+">
                                 <label>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
                                         viewBox="0 0 24 24" fill="none" stroke="Currentcolor" stroke-width="2"

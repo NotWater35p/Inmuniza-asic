@@ -2,6 +2,11 @@
 @section('title', 'Vacunas')
 
 @section('content')
+@php
+    $nivelUsuario = auth()->user()?->personal?->cargo?->nivel_acceso ?? 0;
+    $esAdmin      = $nivelUsuario >= 5;
+    $puedeEditar  = $nivelUsuario >= 3; // nivel 3 (asistente) y 5 (admin)
+@endphp
 <div class="px-4 py-6 mx-auto max-w-7xl bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
 
     {{-- Header --}}
@@ -22,6 +27,7 @@
                 Vacunas Registradas
             </h1>
         </div>
+        @if($puedeEditar)
         <a href="{{ route('vacunas.create') }}"
             class="inline-flex items-center gap-2 text-white bg-linear-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-linear-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-base text-sm px-4 py-2.5 text-center leading-5">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -33,6 +39,7 @@
             </svg>
             Nueva Vacuna
         </a>
+        @endif
     </div>
 
     {{-- Alertas --}}
@@ -257,6 +264,7 @@
                                                 <circle cx="12" cy="12" r="3" />
                                             </svg>
                                         </a>
+                                        @if($puedeEditar)
                                         <a href="{{ route('vacunas.edit', $vacuna->id) }}"
                                             class="p-1.5 text-yellow-500 hover:text-yellow-700 hover:bg-yellow-100 rounded-lg"
                                             title="Editar">
@@ -269,6 +277,7 @@
                                                     d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
                                             </svg>
                                         </a>
+                                        @endif
                                         <a href="{{ route('vacunas.pdf', $vacuna->id) }}"
                                             class="p-1.5 text-green-500 hover:text-green-700 hover:bg-green-100 rounded-lg"
                                             title="Reporte">
@@ -283,6 +292,7 @@
                                                 <path d="m9 15 3 3 3-3" />
                                             </svg>
                                         </a>
+                                        @if($esAdmin)
                                         <button type="button"
                                             onclick="abrirEliminar({{ $vacuna->id }}, '{{ addslashes($vacuna->nombre) }}')"
                                             class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-lg"
@@ -298,6 +308,7 @@
                                                 <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                             </svg>
                                         </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

@@ -2,6 +2,11 @@
 @section('title', 'Detalles | ' . $vacuna->nombre)
 
 @section('content')
+@php
+    $nivelUsuario = auth()->user()?->personal?->cargo?->nivel_acceso ?? 0;
+    $esAdmin      = $nivelUsuario >= 5;
+    $puedeEditar  = $nivelUsuario >= 3;
+@endphp
 <div class="px-4 py-6 mx-auto max-w-3xl bg-white/90 rounded-lg shadow backdrop-blur-sm">
 
     {{-- Header --}}
@@ -22,7 +27,7 @@
     </div>
 
     {{-- Banner --}}
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 mb-5 text-white">
+    <div class="bg-linear-to-r from-blue-600 to-blue-800 rounded-xl p-6 mb-5 text-white">
         <div class="flex items-center gap-4">
             <div class="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                 <i data-lucide="syringe" class="w-7 h-7 text-white"></i>
@@ -104,17 +109,19 @@
 
     {{-- Acciones --}}
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div class="flex items-center justify-between px-5 py-4">
+        <div class="flex items-center {{ $puedeEditar ? 'justify-between' : 'justify-start' }} px-5 py-4">
             <a href="{{ route('vacunas.pdf', $vacuna->id) }}"
                 class="flex items-center gap-2 text-sm font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-600 hover:text-white rounded-lg px-4 py-2.5 transition-colors">
                 <i data-lucide="printer" class="w-4 h-4"></i>
                 Reporte PDF
             </a>
+            @if($puedeEditar)
             <a href="{{ route('vacunas.edit', $vacuna->id) }}"
                 class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-500 hover:text-white rounded-lg transition-colors">
                 <i data-lucide="square-pen" class="w-4 h-4"></i>
                 Editar
             </a>
+            @endif
         </div>
     </div>
 </div>

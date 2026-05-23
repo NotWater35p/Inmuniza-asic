@@ -11,6 +11,7 @@ use App\Models\Personal;
 use App\Models\Modulo;
 use App\Models\Tratamiento;
 use App\Models\Jornada;
+use App\Models\Perdida;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -97,9 +98,14 @@ class DashboardController extends Controller
                     ->where('vacuna_id', $vacuna->id)
                     ->sum('dosis_aplicada');
 
+                $perdido = Perdida::where('modulo_id', $modulo->id)
+                    ->where('vacuna_id', $vacuna->id)
+                    ->sum('cantidad');
+
                 $vacuna->despachado  = $despachado;
                 $vacuna->usado       = $usado;
-                $vacuna->disponible  = $despachado - $usado;
+                $vacuna->perdido     = $perdido;
+                $vacuna->disponible  = max(0, $despachado - $usado - $perdido);
                 return $vacuna;
             })
             ->filter(fn($v) => $v->despachado > 0); // solo vacunas que le han despachado

@@ -6,6 +6,7 @@ use App\Models\Modulo;
 use App\Models\Vacuna;
 use App\Models\Despacho;
 use App\Models\Tratamiento;
+use App\Models\Perdida;
 use Illuminate\View\View;
 
 class ModuloInventarioController extends Controller
@@ -49,9 +50,14 @@ class ModuloInventarioController extends Controller
                     ->where('vacuna_id', $vacuna->id)
                     ->sum('dosis_aplicada');
 
+                $totalPerdido = Perdida::where('modulo_id', $modulo->id)
+                    ->where('vacuna_id', $vacuna->id)
+                    ->sum('cantidad');
+
                 $vacuna->total_despachado = $totalDespachado;
                 $vacuna->total_usado      = $totalUsado;
-                $vacuna->disponible       = $totalDespachado - $totalUsado;
+                $vacuna->total_perdido    = $totalPerdido;
+                $vacuna->disponible       = max(0, $totalDespachado - $totalUsado - $totalPerdido);
                 $vacuna->lotes            = $lotes;
                 return $vacuna;
             })

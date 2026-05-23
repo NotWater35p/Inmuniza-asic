@@ -292,10 +292,13 @@
 
 @push('scripts')
 <script>
-// Formatea yyyy-mm-dd → dd/mm/yyyy
 function fmtFecha(f) {
     if (!f) return '';
-    const [y, m, d] = String(f).split('-');
+    // Soporta 'YYYY-MM-DD' y 'YYYY-MM-DDTHH:mm:ss.000000Z' (TiDB Cloud)
+    const fecha = new Date(f);
+    const d = String(fecha.getUTCDate()).padStart(2, '0');
+    const m = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+    const y = fecha.getUTCFullYear();
     return d + '/' + m + '/' + y;
 }
 
