@@ -29,13 +29,32 @@ class InventarioController extends Controller
                                         ->orWhere('fecha_vencimiento', '>=', $hoy))
                     ->sum('cantidad_disponible');
 
-                // Stock bloqueado en lotes vencidos con unidades restantes
-                $stockVencido = (int) DB::table('carga')
+                // Stock bruto en lotes vencidos con unidades aún en carga
+                $stockVencidoBruto = (int) DB::table('carga')
                     ->where('vacuna_id', $vacuna->id)
                     ->whereNotNull('fecha_vencimiento')
                     ->where('fecha_vencimiento', '<', $hoy)
                     ->where('cantidad_disponible', '>', 0)
                     ->sum('cantidad_disponible');
+
+                // Pérdidas registradas del ASIC para esos lotes vencidos
+                // (lotes sin especificar también se descuentan por seguridad)
+                $perdidoEnVencidos = (int) DB::table('perdida')
+                    ->where('vacuna_id', $vacuna->id)
+                    ->whereNull('modulo_id')
+                    ->where(function ($q) use ($vacuna, $hoy) {
+                        $q->whereIn('lote', function ($sub) use ($vacuna, $hoy) {
+                            $sub->select('lote')
+                                ->from('carga')
+                                ->where('vacuna_id', $vacuna->id)
+                                ->whereNotNull('lote')
+                                ->whereNotNull('fecha_vencimiento')
+                                ->where('fecha_vencimiento', '<', $hoy);
+                        })->orWhereNull('lote'); // pérdidas sin lote también cuentan
+                    })
+                    ->sum('cantidad');
+
+                $stockVencido = max(0, $stockVencidoBruto - $perdidoEnVencidos);
 
                 $despachado = (int) DB::table('despacho')->where('vacuna_id', $vacuna->id)->sum('cantidad');
                 $perdido    = (int) DB::table('perdida')

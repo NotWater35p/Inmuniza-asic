@@ -14,7 +14,8 @@
     <link rel="icon" href="{{ asset('img/svg/logo_alter.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body { background: url({{ asset('img/mask.jpg')}});
+        body {
+        background: url({{ asset('img/mask.jpg')}});
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
@@ -242,7 +243,7 @@
                     </a>
                 </li>
 
-                                {{-- Clínica accordion --}}
+                {{-- Clínica accordion --}}
                 <li>
                     <button data-accordion-target="#clinica-content" aria-expanded="false"
                         class="accordion-btn flex items-center justify-between px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ str_starts_with($rutaActual, 'pacientes') || str_starts_with($rutaActual, 'jornadas') || str_starts_with($rutaActual, 'tratamientos') || str_starts_with($rutaActual, 'descargo') ? 'active' : '' }}">
@@ -669,6 +670,18 @@
                             </a>
                         </li>
                     </ul>
+                </li>
+                <li>
+                    <a href="{{ route('sispai.index') }}"
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ $rutaActual === 'inicio' ? 'active' : '' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                            <path
+                                d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        </svg>
+                        <span>Reportes</span>
+                    </a>
                 </li>
 
                 @endif {{-- fin @else admin --}}

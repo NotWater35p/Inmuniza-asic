@@ -253,9 +253,15 @@
                     @error('motivo')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="p_lote" class="block mb-1.5 text-sm font-medium text-gray-700">Lote</label>
-                    <input type="text" name="lote" id="p_lote" value="{{ old('lote') }}" maxlength="50" placeholder="Opcional" autocomplete="off"
+                    <label for="p_lote" class="block mb-1.5 text-sm font-medium text-gray-700">
+                        Lote
+                        <span id="p_lote_cargando" class="hidden text-xs text-blue-500 font-normal ml-1">cargando...</span>
+                    </label>
+                    <select name="lote" id="p_lote"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+                        <option value="">— Selecciona una vacuna primero —</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-400">Solo lotes con stock disponible</p>
                 </div>
                 <div>
                     <label for="p_fecha" class="block mb-1.5 text-sm font-medium text-gray-700">Fecha <span class="text-red-500">*</span></label>
@@ -343,18 +349,73 @@ function spinnerHTML() {
 }
 
 // ── Modal Pérdida ────────────────────────────────────────────────────
+function cargarLotesParaPerdida(vacunaId) {
+    const sel      = document.getElementById('p_lote');
+    const spinner  = document.getElementById('p_lote_cargando');
+
+    sel.innerHTML = '<option value="">Cargando...</option>';
+    sel.disabled  = true;
+    spinner.classList.remove('hidden');
+
+    if (!vacunaId) {
+        sel.innerHTML = '<option value="">— Selecciona una vacuna primero —</option>';
+        sel.disabled  = false;
+        spinner.classList.add('hidden');
+        return;
+    }
+
+    fetch(`/inventario/lotes/${vacunaId}`, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const vigentes = (data.lotes || []).filter(l => !l.vencido && (l.disponible ?? 0) > 0);
+        sel.innerHTML = '<option value="">— Sin lote específico —</option>';
+        if (vigentes.length > 0) {
+            vigentes.forEach(l => {
+                const vence = l.fecha_vencimiento ? ` · Vence: ${fmtFecha(l.fecha_vencimiento)}` : '';
+                const opt   = document.createElement('option');
+                opt.value   = l.lote;
+                opt.textContent = `${l.lote} (${l.disponible} disp.${vence})`;
+                sel.appendChild(opt);
+            });
+        } else {
+            const opt = document.createElement('option');
+            opt.disabled = true;
+            opt.textContent = 'Sin lotes vigentes disponibles';
+            sel.appendChild(opt);
+        }
+    })
+    .catch(() => {
+        sel.innerHTML = '<option value="">Error al cargar lotes</option>';
+    })
+    .finally(() => {
+        sel.disabled = false;
+        spinner.classList.add('hidden');
+    });
+}
+
 function abrirModalPerdida(vacunaId = null, vacunaNombre = null) {
-    if (vacunaId) {
-        const sel = document.getElementById('p_vacuna_id');
-        if (sel) sel.value = vacunaId;
+    const sel = document.getElementById('p_vacuna_id');
+    if (vacunaId && sel) {
+        sel.value = vacunaId;
+        cargarLotesParaPerdida(vacunaId);
+    } else {
+        document.getElementById('p_lote').innerHTML =
+            '<option value="">— Selecciona una vacuna primero —</option>';
     }
     document.getElementById('modalPerdida').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
+
 function cerrarModalPerdida() {
     document.getElementById('modalPerdida').classList.add('hidden');
     document.body.style.overflow = '';
+    // Limpiar select de lotes al cerrar
+    document.getElementById('p_lote').innerHTML =
+        '<option value="">— Selecciona una vacuna primero —</option>';
 }
+
 
 // ── Modal Lotes ──────────────────────────────────────────────────────
 function verLotes(id, nombre) {
@@ -484,7 +545,9 @@ function cerrarModalVenc() {
 }
 
 // ── Cerrar con clic fuera ────────────────────────────────────────────
+// Listener global: cerrar modales al clic fuera + cambio de vacuna en modal pérdida
 document.addEventListener('DOMContentLoaded', () => {
+    // Cerrar al hacer clic en el backdrop
     [
         { id: 'modalPerdida', fn: cerrarModalPerdida },
         { id: 'modalLotes',   fn: cerrarModalLotes   },
@@ -493,6 +556,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(id)?.addEventListener('click', e => {
             if (e.target.id === id) fn();
         });
+    });
+
+    // Escuchar cambio manual de vacuna en el modal
+    document.getElementById('p_vacuna_id')?.addEventListener('change', function () {
+        cargarLotesParaPerdida(this.value || null);
     });
 
     // Re-abrir modal si hubo errores de validación

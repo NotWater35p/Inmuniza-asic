@@ -593,14 +593,11 @@ class SispaIController extends Controller
     private function calcularPerdidas(Modulo $modulo, int $mes, int $anio): array
     {
         // Col 275-291 son dosis perdidas por vacuna
+        // Pérdidas del módulo específico en el período
         $perdidas = Perdida::with('vacuna')
             ->whereMonth('fecha', $mes)
             ->whereYear('fecha', $anio)
-            ->where('vacuna_id', function($q) use ($modulo) {
-                // Perdidas del ASIC relacionadas con vacunas que van al módulo
-                $q->select('vacuna_id')->from('despacho')
-                  ->where('modulo_id', $modulo->id);
-            })
+            ->where('modulo_id', $modulo->id)
             ->get();
 
         $mapa = [];
