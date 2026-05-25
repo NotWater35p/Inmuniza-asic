@@ -51,19 +51,17 @@ class DescargaRapidaController extends Controller
             'observaciones'    => 'nullable|string|max:500',
         ]);
 
-        // Crear N registros de dosis aplicada (una por dosis)
-        for ($i = 0; $i < $validated['cantidad']; $i++) {
-            Tratamiento::create([
-                'jornada_id'        => $validated['jornada_id'] ?? null,
-                'paciente_id'       => null,
-                'vacuna_id'         => $validated['vacuna_id'],
-                'dosis_aplicada'    => 1,
-                'es_descargo_rapido'=> true,
-                'subtipo_paciente'  => $validated['subtipo_paciente'] ?? 'general',
-                'fecha_aplicacion'  => $validated['fecha_aplicacion'],
-                'observaciones'     => $validated['observaciones'] ?? null,
-            ]);
-        }
+        // Un solo registro con la cantidad total de dosis
+        Tratamiento::create([
+            'jornada_id'         => $validated['jornada_id'] ?? null,
+            'paciente_id'        => null,   // nullable — descargo sin paciente
+            'vacuna_id'          => $validated['vacuna_id'],
+            'dosis_aplicada'     => $validated['cantidad'],
+            'es_descargo_rapido' => true,
+            'subtipo_paciente'   => $validated['subtipo_paciente'] ?? 'general',
+            'fecha_aplicacion'   => $validated['fecha_aplicacion'],
+            'observaciones'      => $validated['observaciones'] ?? null,
+        ]);
 
         return redirect()->route('descargo.create')
             ->with('success', "Descargo registrado: {$validated['cantidad']} dosis de " .
@@ -85,19 +83,17 @@ class DescargaRapidaController extends Controller
         $total = 0;
 
         foreach ($request->descargas as $item) {
-            for ($i = 0; $i < $item['cantidad']; $i++) {
-                Tratamiento::create([
-                    'jornada_id'         => $jornadaId,
-                    'paciente_id'        => null,
-                    'vacuna_id'          => $item['vacuna_id'],
-                    'dosis_aplicada'     => 1,
-                    'es_descargo_rapido' => true,
-                    'subtipo_paciente'   => $item['subtipo_paciente'] ?? 'general',
-                    'fecha_aplicacion'   => $item['fecha_aplicacion'],
-                    'observaciones'      => $item['observaciones'] ?? null,
-                ]);
-            }
-            $total += $item['cantidad'];
+            Tratamiento::create([
+                'jornada_id'         => $jornadaId,
+                'paciente_id'        => null,   // nullable — descargo sin paciente
+                'vacuna_id'          => $item['vacuna_id'],
+                'dosis_aplicada'     => (int) $item['cantidad'],
+                'es_descargo_rapido' => true,
+                'subtipo_paciente'   => $item['subtipo_paciente'] ?? 'general',
+                'fecha_aplicacion'   => $item['fecha_aplicacion'],
+                'observaciones'      => $item['observaciones'] ?? null,
+            ]);
+            $total += (int) $item['cantidad'];
         }
 
         return redirect()->route('descargo.create')

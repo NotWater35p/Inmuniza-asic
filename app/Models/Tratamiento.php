@@ -15,14 +15,16 @@ class Tratamiento extends Model
         'paciente_id',
         'vacuna_id',
         'dosis_aplicada',
+        'es_descargo_rapido', // true = descargo sin paciente vinculado
         'subtipo_paciente',
         'fecha_aplicacion',
         'observaciones',
     ];
 
     protected $casts = [
-        'fecha_aplicacion' => 'date',
-        'dosis_aplicada'   => 'integer',
+        'fecha_aplicacion'   => 'date',
+        'dosis_aplicada'     => 'integer',
+        'es_descargo_rapido' => 'boolean',
     ];
 
     public function jornada(): BelongsTo
@@ -43,9 +45,12 @@ class Tratamiento extends Model
     /**
      * Calcula la fecha de la próxima dosis (o refuerzo) basándose
      * en el intervalo/refuerzo de la vacuna y la dosis actual.
+     * Solo aplica si hay paciente vinculado.
      */
     public function fechaProximaDosis(): ?Carbon
     {
+        if (!$this->paciente_id) return null;
+
         $vacuna = $this->vacuna;
         if (!$vacuna) return null;
 
