@@ -2,7 +2,7 @@
 @section('title', 'Marcas / Fabricantes')
 
 @section('content')
-<div class="px-4 py-6 mx-auto max-w-5xl">
+<div class="px-4 py-6 mx-auto max-w-6xl bg-white/80 rounded-lg shadow backdrop-blur-lg">
 
     {{-- Header --}}
     <div class="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

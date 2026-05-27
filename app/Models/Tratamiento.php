@@ -15,7 +15,7 @@ class Tratamiento extends Model
         'paciente_id',
         'vacuna_id',
         'dosis_aplicada',
-        'es_descargo_rapido', // true = descargo sin paciente vinculado
+        'es_descargo_rapido',
         'subtipo_paciente',
         'fecha_aplicacion',
         'observaciones',
@@ -43,7 +43,7 @@ class Tratamiento extends Model
     }
 
     /**
-     * Calcula la fecha de la próxima dosis (o refuerzo) basándose
+     * Calcula la fecha de la próxima dosis basándose
      * en el intervalo/refuerzo de la vacuna y la dosis actual.
      * Solo aplica si hay paciente vinculado.
      */

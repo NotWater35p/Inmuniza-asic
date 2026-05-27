@@ -8,17 +8,15 @@
             {{-- Cabecera --}}
             <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div class="flex-1 flex items-center gap-2.5">
-                    <h5 class="text-sm font-semibold text-gray-700">Inventario General ASIC</h5>
-                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
-                        {{ $vacunas->total() }} {{ $vacunas->total() == 1 ? 'producto' : 'productos' }}
+                    <h1 class="text-xl font-bold text-red-500 flex items-center gap-2.5">
+                        <div class="p-2 bg-red-500 rounded text-white shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list-icon lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+                        </div>
+                        Inventario General
+                    </h1>
+                    <span class="text-sm text-gray-400 bg-gray-100 px-2 py-0.5 rounded-lg font-medium">
+                        {{ $vacunas->total() }} {{ $vacunas->total() == 1 ? 'Producto' : 'Productos' }}
                     </span>
-                </div>
-                <div class="shrink-0">
-                    <a href="{{ route('perdida.index') }}"
-                        class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                        Ver Pérdidas del ASIC
-                    </a>
                 </div>
             </div>
 
@@ -39,11 +37,11 @@
                     </form>
                 </div>
                 <div class="w-full md:w-auto flex justify-end">
-                    <button type="button" onclick="abrirModalPerdida()"
-                        class="inline-flex items-center justify-center gap-1.5 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 w-full md:w-auto transition-colors">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                        Registrar Pérdida
-                    </button>
+                    <a type="button" href="{{ route('perdida.index') }}"
+                        class="inline-flex items-center justify-center gap-1.5 rounded-lg  text-danger bg-danger-soft box-border border border-danger-subtle hover:bg-danger hover:text-white focus:ring-4 focus:ring-danger-medium shadow-xs font-medium leading-5 text-sm px-4 py-2.5 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert-icon lucide-triangle-alert"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                        Registro de Perdidas
+                    </a>
                 </div>
             </div>
 
@@ -138,7 +136,7 @@
                                     <div class="relative group/perdida">
                                         <button type="button"
                                             onclick="abrirModalPerdida({{ $v->id }}, '{{ addslashes($v->nombre) }}')"
-                                            class="w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-gray-100 text-red-300 hover:border-danger hover:bg-danger hover:text-white transition-colors font-bold text-sm leading-none">
+                                            class="w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-gray-200 text-gray-400 box-border hover:bg-danger-subtle hover:text-danger hover:border-danger focus:ring-4 focus:ring-danger-medium shadow-xs px-4 py-2.5 focus:outline-none transition-colors font-bold text-sm leading-none">
                                             !
                                         </button>
                                         <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/perdida:block z-20">

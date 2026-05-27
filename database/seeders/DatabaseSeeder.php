@@ -22,19 +22,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            CargoSeeder::class,
-            AsicSeeder::class,
-            MarcaSeeder::class,
-            EtniaSeeder::class,
-            SectorSeeder::class,
-            RepresentanteSeeder::class,
-            PersonalSeeder::class,
-            UserSeeder::class,
-            ModuloSeeder::class,
-            VacunaSeeder::class,
-            PacienteSeeder::class,
-            JornadaSeeder::class,
-            CargaSeeder::class,
+            MaestroSeeder::class,
+            PruebaSeeder::class,
         ]);
     }
 }
