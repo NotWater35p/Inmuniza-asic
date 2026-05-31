@@ -136,7 +136,7 @@
                                     <div class="relative group/perdida">
                                         <button type="button"
                                             onclick="abrirModalPerdida({{ $v->id }}, '{{ addslashes($v->nombre) }}')"
-                                            class="w-8 h-8 inline-flex items-center justify-center rounded-full border-2 border-gray-200 text-gray-400 box-border hover:bg-danger-subtle hover:text-danger hover:border-danger focus:ring-4 focus:ring-danger-medium shadow-xs px-4 py-2.5 focus:outline-none transition-colors font-bold text-sm leading-none">
+                                            class="w-8 h-8 inline-flex items-center justify-center rounded-full border border-gray-200 text-gray-400 box-border hover:bg-danger-subtle hover:text-danger hover:border-danger focus:ring-4 focus:ring-danger-medium px-4 py-2.5 focus:outline-none transition-colors font-bold text-sm leading-none">
                                             !
                                         </button>
                                         <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/perdida:block z-20">

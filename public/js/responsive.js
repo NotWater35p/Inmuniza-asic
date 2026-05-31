@@ -1,6 +1,5 @@
 // Selección de elementos del DOM
 const inputs = document.querySelectorAll(".input-field");
-const toggle_btn = document.querySelectorAll(".toggle");
 const main = document.querySelector("main");
 const bullets = document.querySelectorAll(".bullets span");
 const images = document.querySelectorAll(".image");
@@ -20,13 +19,6 @@ inputs.forEach((inp) => {
         inp.classList.remove("active");
     });
 });
-
-// Alternar entre modos de inicio de sesión y registro
-// toggle_btn.forEach((btn) => {
-//     btn.addEventListener("click", () => {
-//         main.classList.toggle("sign-up-mode");
-//     });
-// });
 
 // Función para mover el carrusel
 function moveSlider() {
@@ -106,3 +98,16 @@ eyeicon.onclick = function(){
     document.getElementById('cedula').addEventListener('input', function (e) {
         this.value = this.value.replace(/\D/g, '');
     });
+
+// ── Refresco automático de token CSRF ────────────────────────────────
+// Si el usuario vuelve a la pestaña después de 20+ minutos inactivo,
+// recarga la página silenciosamente para obtener un token CSRF fresco.
+let tiempoSalida = null;
+
+document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+        tiempoSalida = Date.now();
+    } else if (tiempoSalida && (Date.now() - tiempoSalida > 20 * 60 * 1000)) {
+        location.reload();
+    }
+});

@@ -44,7 +44,7 @@ class DescargaRapidaController extends Controller
     {
         $validated = $request->validate([
             'vacuna_id'        => 'required|exists:vacuna,id',
-            'jornada_id'       => 'nullable|exists:jornada,id',
+            'jornada_id'       => 'required|exists:jornada,id',
             'cantidad'         => 'required|integer|min:1',
             'fecha_aplicacion' => 'required|date|before_or_equal:today',
             'subtipo_paciente' => 'nullable|in:general,personal_salud,dialisis,privado_libertad,trabajador_sexual,embarazada',
@@ -71,6 +71,7 @@ class DescargaRapidaController extends Controller
     public function storeBulk(Request $request): RedirectResponse
     {
         $request->validate([
+            'jornada_id'                   => 'required|exists:jornada,id',
             'descargas'                    => 'required|array|min:1',
             'descargas.*.vacuna_id'        => 'required|exists:vacuna,id',
             'descargas.*.cantidad'         => 'required|integer|min:1',

@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (TokenMismatchException $e, $request) {
             return redirect()->route('login')
-                ->withErrors(['cedula' => 'Tu sesión expiró. Por favor intenta de nuevo.']);
+                ->withInput($request->except(['password', '_token']))
+                ->with('csrf_expired', true);
         });
     })->create();

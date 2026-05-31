@@ -673,7 +673,7 @@
                 </li>
                 <li>
                     <a href="{{ route('sispai.index') }}"
-                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ $rutaActual === 'inicio' ? 'active' : '' }}">
+                        class="sidebar-link flex items-center gap-3 px-2 py-1.5 text-body rounded-base hover:bg-blue-50 hover:text-blue-600 w-full {{ $rutaActual === 'reportes' ? 'active' : '' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />

@@ -32,6 +32,12 @@
                             <h6>Bienvenidos sistema de gestion de vacunas del ASIC Ilapeca</h6>
                         </div>
 
+                        @if(session('csrf_expired'))
+                        <div class="alert-warning">
+                            Tu sesión expiró. El formulario fue actualizado, intenta de nuevo.
+                        </div>
+                        @endif
+
                         @if ($errors->any())
                             <div class="alert">
                                 <ul>
@@ -98,7 +104,7 @@
                             class="show image img-1">
                         <img src="{{ asset('img/medic-mama.png') }}" alt="" class="image img-2">
                         <img src="{{ asset('img/medic-registro.png') }}" alt="" class="image img-3">
-                        <img src="{{ asset('img/report.png') }}" alt="" class="image img-4">
+                        <img src="{{ asset('img/kit.png') }}" alt="" class="image img-4">
                     </div>
 
                     <!-- ============================= TEXTO DEL CARRUSEL ================================================== -->

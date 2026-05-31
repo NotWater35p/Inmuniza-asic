@@ -2,7 +2,7 @@
 @section('title', 'Registrar Despacho')
 
 @section('content')
-<div class="px-4 py-6 mx-auto max-w-5xl bg-white/90 rounded-lg shadow-sm backdrop-blur-lg">
+<div class="px-4 py-6 mx-auto max-w-7xl bg-white/90 rounded-lg shadow-sm backdrop-blur-lg">
 
     {{-- Header --}}
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
