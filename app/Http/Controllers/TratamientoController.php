@@ -6,7 +6,10 @@ use App\Models\Tratamiento;
 use App\Models\Paciente;
 use App\Models\Vacuna;
 use App\Models\Jornada;
+use App\Models\Modulo;
+use App\Models\Perdida;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Http\Requests\TratamientoRequest;
 use Illuminate\Support\Facades\Redirect;
@@ -29,12 +32,10 @@ class TratamientoController extends Controller
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(function ($q) use ($s) {
-                $q->where('paciente_cedula', 'like', "%$s%")
-                    ->orWhereHas(
-                        'paciente',
-                        fn($q) =>
-                        $q->where('nombres',   'like', "%$s%")
-                            ->orWhere('apellidos', 'like', "%$s%")
+                $q->whereHas('paciente', fn($p) =>
+                        $p->where('nombres',   'like', "%$s%")
+                          ->orWhere('apellidos', 'like', "%$s%")
+                          ->orWhere('cedula',    'like', "%$s%")
                     )
                     ->orWhereHas('vacuna', fn($q) => $q->where('nombre', 'like', "%$s%"));
             });
@@ -92,10 +93,58 @@ class TratamientoController extends Controller
 
     public function store(TratamientoRequest $request): RedirectResponse
     {
-        Tratamiento::create($request->validated());
+        $data    = $request->validated();
+        $jornada = Jornada::find($data['jornada_id']);
+
+        // ── Verificar stock disponible antes de registrar ─────────────
+        $stockDisponible = $this->calcularStockDisponible(
+            $data['vacuna_id'],
+            $jornada
+        );
+
+        if ($stockDisponible <= 0) {
+            return back()
+                ->withInput()
+                ->withErrors(['vacuna_id' =>
+                    'Stock insuficiente. No hay dosis disponibles de esta vacuna ' .
+                    ($jornada?->modulo ? 'en el módulo ' . $jornada->modulo->nombre : 'en el ASIC') . '.'
+                ]);
+        }
+
+        Tratamiento::create($data);
 
         return Redirect::route('tratamientos.index')
             ->with('success', 'Tratamiento registrado exitosamente.');
+    }
+
+    /**
+     * Calcula el stock disponible de una vacuna según el contexto:
+     * - Jornada del módulo  → stock del módulo   (despachado - usado - perdido)
+     * - Jornada del ASIC    → stock del ASIC      (carga.cantidad_disponible - perdidas ASIC)
+     */
+    private function calcularStockDisponible(int $vacunaId, ?Jornada $jornada): int
+    {
+        // ── Jornada de un módulo afiliado ────────────────────────────
+        if ($jornada?->modulo_id) {
+            $modulo = Modulo::find($jornada->modulo_id);
+            return $modulo ? $modulo->stockVacuna($vacunaId) : 0;
+        }
+
+        // ── Jornada del ASIC (modulo_id = null) ──────────────────────
+        $hoy = now()->toDateString();
+
+        $stockBruto = (int) DB::table('carga')
+            ->where('vacuna_id', $vacunaId)
+            ->where(fn($q) => $q->whereNull('fecha_vencimiento')
+                                ->orWhere('fecha_vencimiento', '>=', $hoy))
+            ->sum('cantidad_disponible');
+
+        $perdidoAsic = (int) DB::table('perdida')
+            ->where('vacuna_id', $vacunaId)
+            ->whereNull('modulo_id')
+            ->sum('cantidad');
+
+        return max(0, $stockBruto - $perdidoAsic);
     }
 
     /**
