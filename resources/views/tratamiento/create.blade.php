@@ -14,20 +14,20 @@
             <p class="text-sm text-gray-500 mt-1">Registra la aplicación de una vacuna a un paciente</p>
         </div>
         <a href="{{ route('tratamientos.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg> Volver
         </a>
     </div>
 
     @if($errors->any())
     <div class="flex items-start gap-3 p-4 mb-5 text-red-800 bg-red-50 border border-red-200 rounded-lg">
-        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
         <ul class="text-sm list-disc list-inside">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
     </div>
     @endif
 
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div class="p-5 border-b border-gray-100 flex items-center gap-2">
-            <i data-lucide="syringe" class="w-4 h-4 text-teal-600"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
             <h2 class="text-base font-semibold text-gray-800">Datos de la Vacunación</h2>
         </div>
         <form method="POST" action="{{ route('tratamientos.store') }}">
@@ -37,5 +37,5 @@
     </div>
 </div>
 
-@push('scripts')<script>lucide.createIcons();</script>@endpush
+@push('scripts')@endpush
 @endsection

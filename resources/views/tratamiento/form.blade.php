@@ -6,19 +6,20 @@ $pacienteIdPreload = old('paciente_id', $tratamiento?->paciente_id ?? $pacienteP
 $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?? null;
 @endphp
 
-<input type="hidden" name="paciente_id" id="paciente_cedula_hidden" value="{{ $cedulaPreload }}">
+<input type="hidden" name="paciente_id" id="paciente_cedula_hidden"
+    value="{{ old('paciente_id', $tratamiento?->paciente_id ?? $pacientePreload?->id ?? '') }}">
 
 <div class="p-5 space-y-6">
 
     {{-- ─── SECCIÓN 1: Jornada ──────────────────────── --}}
     <div>
         <label class="block mb-1.5 text-sm font-medium text-gray-700 flex items-center gap-1.5">
-            <i data-lucide="calendar-check-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
             Jornada de Vacunación <span class="text-red-500">*</span>
         </label>
         <div class="relative">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
             </div>
             <select name="jornada_id" id="jornada_id" onchange="onJornadaChange(this.value)"
                 class="pl-9 bg-gray-50 border {{ $errors->has('jornada_id') ? 'border-red-500' : 'border-gray-300' }} text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
@@ -38,7 +39,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
         <div class="mt-2">
             <a href="{{ route('jornadas.create') }}" target="_blank"
                 class="text-xs text-emerald-600 hover:text-emerald-800 flex items-center gap-1">
-                <i data-lucide="plus-circle" class="w-3 h-3"></i> Crear nueva jornada (abre en nueva pestaña)
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg> Crear nueva jornada (abre en nueva pestaña)
             </a>
         </div>
     </div>
@@ -46,7 +47,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
     {{-- ─── SECCIÓN 2: Paciente ─────────────────────── --}}
     <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
         <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-            <i data-lucide="user" class="w-4 h-4 text-teal-600"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Paciente
         </h3>
 
@@ -57,7 +58,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
             <div class="flex gap-2">
                 <div class="relative flex-1">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <i data-lucide="id-card" class="w-4 h-4 text-gray-400"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                     </div>
                     <input type="text" id="paciente_buscar" placeholder="Buscar por nombre o cédula..."
                         autocomplete="off"
@@ -70,7 +71,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
                 </div>
                 <button type="button" onclick="buscarPaciente(document.getElementById('cedula_busqueda').value)"
                     class="px-4 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700">
-                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </button>
             </div>
             @error('paciente_id')<p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>@enderror
@@ -108,13 +109,13 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
                     <a id="pacienteLink"
                         href="{{ $tratamiento?->paciente ? route('pacientes.show', $tratamiento->paciente->id) : ($pacientePreload ? route('pacientes.show', $pacientePreload->id) : '#') }}"
                         target="_blank" class="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-800">
-                        <i data-lucide="external-link" class="w-3 h-3"></i> Ver ficha
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg> Ver ficha
                     </a>
                 </div>
                 {{-- Resumen de vacunas previas --}}
                 <div id="vacunasPrevias" class="mt-3 pt-3 border-t border-teal-200 hidden">
                     <p class="text-xs text-teal-700 font-medium mb-2 flex items-center gap-1">
-                        <i data-lucide="clock" class="w-3 h-3"></i> Vacunas previas de esta vacuna:
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Vacunas previas de esta vacuna:
                     </p>
                     <div id="vacunasPreviasLista" class="flex flex-wrap gap-1.5"></div>
                 </div>
@@ -123,13 +124,13 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
             {{-- Paciente NO encontrado --}}
             <div id="pacienteNoEncontrado" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <div class="flex items-start gap-3">
-                    <i data-lucide="user-x" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>
                     <div>
                         <p class="text-sm font-semibold text-amber-800">Paciente no registrado</p>
                         <p class="text-xs text-amber-700 mt-0.5">No hay ningún paciente con esa cédula.</p>
                         <a id="btnRegistrarPaciente" href="{{ route('pacientes.create') }}" target="_blank"
                             class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700">
-                            <i data-lucide="user-plus" class="w-3 h-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
                             Registrar paciente primero
                         </a>
                     </div>
@@ -148,7 +149,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
             </label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i data-lucide="syringe" class="w-4 h-4 text-gray-400"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
                 </div>
                 <select name="vacuna_id" id="vacuna_id" onchange="onVacunaChange(this.value)"
                     class="pl-9 bg-gray-50 border {{ $errors->has('vacuna_id') ? 'border-red-500' : 'border-gray-300' }} text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
@@ -181,7 +182,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
             </label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i data-lucide="hash" class="w-4 h-4 text-gray-400"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>
                 </div>
                 <input type="number" name="dosis_aplicada" id="dosis_aplicada" min="1"
                     value="{{ old('dosis_aplicada', $tratamiento?->dosis_aplicada ?? 1) }}" onchange="calcularProxima()"
@@ -193,7 +194,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
             <div id="dosisIndicador" class="hidden mt-2">
                 <div class="flex flex-wrap gap-1" id="dosisBadges"></div>
                 <p id="dosisCompletado" class="hidden mt-1.5 text-xs text-green-600 flex items-center gap-1">
-                    <i data-lucide="check-circle" class="w-3 h-3"></i> Esquema de vacunación completado
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Esquema de vacunación completado
                 </p>
             </div>
         </div>
@@ -205,7 +206,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
             </label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                 </div>
                 <input type="date" name="fecha_aplicacion" id="fecha_aplicacion"
                     value="{{ old('fecha_aplicacion', $tratamiento?->fecha_aplicacion?->format('Y-m-d') ?? date('Y-m-d')) }}"
@@ -218,7 +219,7 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
         {{-- Próxima dosis (calculada, solo lectura) --}}
         <div>
             <label class="block mb-1.5 text-sm font-medium text-gray-700 flex items-center gap-1.5">
-                <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-teal-500"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><circle cx="17" cy="17" r="4"/><path d="M17 15v2l1 1"/></svg>
                 Próxima Dosis (calculada)
             </label>
             <div id="proximaDosisBox"
@@ -250,14 +251,14 @@ $cedulaPreload = $tratamiento?->paciente?->cedula ?? $pacientePreload?->cedula ?
     </a>
     <button type="submit" id="btnGuardar"
         class="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800 focus:ring-4 focus:ring-teal-300">
-        <i data-lucide="save" class="w-4 h-4"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         {{ $esEdicion ? 'Actualizar' : 'Registrar' }} Vacunación
     </button>
 </div>
 
 @push('scripts')
 <script>
-    lucide.createIcons();
+    
 
     let pacienteActual = null;
 
@@ -356,8 +357,8 @@ function seleccionarPaciente(p) {
 
         // Actualizar historial de vacunas si ya hay vacuna seleccionada
         const vacunaId = document.getElementById('vacuna_id').value;
-        if (vacunaId) cargarDosisHistorial(data.cedula, vacunaId);
-        lucide.createIcons();
+        if (vacunaId) cargarDosisHistorial(data.id, vacunaId);
+        
     }
 
     function mostrarPacienteNoEncontrado(cedula) {
@@ -366,7 +367,7 @@ function seleccionarPaciente(p) {
         document.getElementById('pacienteEncontrado').classList.add('hidden');
         document.getElementById('pacienteNoEncontrado').classList.remove('hidden');
         document.getElementById('pacienteInfo').classList.remove('hidden');
-        lucide.createIcons();
+        
     }
 
     // ── VACUNA: mostrar info y calcular dosis ─────────────────
@@ -393,14 +394,14 @@ function seleccionarPaciente(p) {
 
         // Cargar historial si hay paciente
         const pacienteId = document.getElementById('paciente_cedula_hidden').value;
-        if (cedula) cargarDosisHistorial(cedula, vacunaId);
+        if (pacienteId) cargarDosisHistorial(pacienteId, vacunaId);
 
         calcularProxima();
     }
 
     // ── HISTORIAL de dosis del paciente para esa vacuna ───────
-    function cargarDosisHistorial(cedula, vacunaId) {
-        fetch(`{{ route('tratamientos.dosis') }}?cedula=${cedula}&vacuna_id=${vacunaId}`)
+    function cargarDosisHistorial(pacienteId, vacunaId) {
+        fetch(`{{ route('tratamientos.dosis') }}?paciente_id=${pacienteId}&vacuna_id=${vacunaId}`)
         .then(r => r.json())
         .then(data => {
             const indicador = document.getElementById('dosisIndicador');
@@ -436,7 +437,7 @@ function seleccionarPaciente(p) {
             } else {
                 previas.classList.add('hidden');
             }
-            lucide.createIcons();
+            
         })
         .catch(() => {});
     }
@@ -486,8 +487,8 @@ function seleccionarPaciente(p) {
         if (vacunaId) onVacunaChange(vacunaId);
 
         // Si viene con paciente precargado
-        const cedula = document.getElementById('paciente_cedula_hidden').value;
-        if (cedula && vacunaId) cargarDosisHistorial(cedula, vacunaId);
+        const pacienteIdInicial = document.getElementById('paciente_cedula_hidden').value;
+        if (pacienteIdInicial && vacunaId) cargarDosisHistorial(pacienteIdInicial, vacunaId);
 
         calcularProxima();
     });

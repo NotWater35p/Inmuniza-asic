@@ -7,7 +7,7 @@
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <i data-lucide="book-open" class="w-6 h-6 text-teal-600"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 Historial de Vacunación
             </h1>
             <p class="text-sm text-gray-500 mt-1">Historia médica completa del paciente</p>
@@ -15,11 +15,11 @@
         <div class="flex gap-2">
             <a href="{{ route('tratamientos.create', ['cedula' => $paciente->cedula]) }}"
                 class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800">
-                <i data-lucide="syringe" class="w-4 h-4"></i> Nueva vacunación
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg> Nueva vacunación
             </a>
             <a href="{{ route('pacientes.show', $paciente->id) }}"
                 class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                <i data-lucide="user" class="w-4 h-4"></i> Ficha del paciente
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Ficha del paciente
             </a>
         </div>
     </div>
@@ -62,13 +62,13 @@
         $completado = $numDosis && $recibidas >= $numDosis;
         $ultimo     = $registros->sortByDesc('fecha_aplicacion')->first();
         $proxima    = $ultimo?->fechaProximaDosis();
-        $diffDias   = $proxima ? now()->diffInDays($proxima, false) : null;
+        $diffDias   = $proxima ? (int) now()->diffInDays($proxima, false) : null;
     @endphp
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-4">
         <div class="p-4 flex items-center justify-between border-b border-gray-100">
             <div class="flex items-center gap-3">
                 <div class="p-2 {{ $completado ? 'bg-green-100' : 'bg-teal-100' }} rounded-lg">
-                    <i data-lucide="syringe" class="w-5 h-5 {{ $completado ? 'text-green-600' : 'text-teal-600' }}"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 {{ $completado ? 'text-green-600' : 'text-teal-600' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
                 </div>
                 <div>
                     <h3 class="text-sm font-bold text-gray-900">{{ $v?->nombre ?? '—' }}</h3>
@@ -83,7 +83,7 @@
             <div class="text-right">
                 @if($completado)
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Esquema completo
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Esquema completo
                 </span>
                 @else
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-100 text-teal-700 text-xs font-semibold rounded-full">
@@ -137,7 +137,7 @@
                                     </p>
                                     @if($r->jornada)
                                     <p class="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
-                                        <i data-lucide="calendar-check-2" class="w-3 h-3 text-emerald-500"></i>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
                                         Jornada: {{ $r->jornada->responsable?->apellido }}
                                     </p>
                                     @endif
@@ -178,15 +178,15 @@
     </div>
     @empty
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
-        <i data-lucide="syringe" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-3 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
         <p class="text-gray-500 font-semibold">Sin vacunaciones registradas</p>
         <a href="{{ route('tratamientos.create', ['cedula' => $paciente->cedula]) }}"
             class="inline-flex items-center gap-2 mt-3 px-4 py-2 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800">
-            <i data-lucide="plus" class="w-4 h-4"></i> Registrar primera vacuna
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Registrar primera vacuna
         </a>
     </div>
     @endforelse
 </div>
 
-@push('scripts')<script>lucide.createIcons();</script>@endpush
+@push('scripts')@endpush
 @endsection

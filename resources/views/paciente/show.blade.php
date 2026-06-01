@@ -19,22 +19,24 @@ Detalles| {{ $paciente->nombres }} {{ $paciente->apellidos }}< @endsection @sect
                 Detalles del Pacientes
             </h1>
         </div>
-        <a href="{{ route('tratamientos.historial.paciente', $paciente->id) }}"
-            class="flex items-center gap-2 text-sm font-medium text-teal-700 bg-teal-100 hover:bg-teal-600 hover:text-white rounded-lg px-4 py-2.5 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12h6" />
-                <path d="M12 9v6" />
-                <path d="M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" />
-                <rect width="8" height="6" x="2" y="9" rx="1" />
-            </svg>
-            Historial Clínico
-        </a>
-        <a href="{{ route('pacientes.index') }}"
-            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            Volver
-        </a>
+        <div class="flex gap-2">
+            <a href="{{ route('tratamientos.historial.paciente', $paciente->id) }}"
+                class="flex items-center gap-2 text-sm font-medium text-teal-700 bg-teal-100 hover:bg-teal-600 hover:text-white rounded-lg px-4 py-2.5 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-book-plus-icon lucide-book-plus">
+                    <path d="M12 7v6" />
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                    <path d="M9 10h6" />
+                </svg>
+                Historial Clínico
+            </a>
+            <a href="{{ route('pacientes.index') }}"
+                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Volver
+            </a>
+        </div>
     </div>
 
     @php

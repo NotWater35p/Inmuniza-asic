@@ -112,7 +112,7 @@ class TratamientoController extends Controller
 
         // Historial completo de vacunación de este paciente
         $historial = Tratamiento::with(['vacuna', 'jornada'])
-            ->where('paciente_cedula', $tratamiento->paciente_cedula)
+            ->where('paciente_id', $tratamiento->paciente_id)
             ->orderBy('fecha_aplicacion', 'desc')
             ->get()
             ->groupBy('vacuna_id');

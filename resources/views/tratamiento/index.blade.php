@@ -17,12 +17,12 @@
         <div class="flex gap-2">
             <a href="{{ route('jornadas.index') }}"
                 class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100">
-                <i data-lucide="calendar-check-2" class="w-4 h-4"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
                 Jornadas
             </a>
             <a href="{{ route('tratamientos.create') }}"
                 class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800">
-                <i data-lucide="plus" class="w-4 h-4"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 Nueva Vacunación
             </a>
         </div>
@@ -30,9 +30,9 @@
 
     @if(session('success'))
     <div class="flex items-center gap-3 p-4 mb-5 text-green-800 bg-green-50 border border-green-200 rounded-lg">
-        <i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <span class="text-sm font-medium">{{ session('success') }}</span>
-        <button onclick="this.parentElement.remove()" class="ml-auto"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="this.parentElement.remove()" class="ml-auto"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
     @endif
 
@@ -46,7 +46,7 @@
                 @endforeach
                 <div class="relative w-full md:w-72">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Buscar paciente, vacuna..."
@@ -57,14 +57,14 @@
                 </button>
                 @if(request()->hasAny(['search','vacuna_id','fecha_desde','fecha_hasta']))
                 <a href="{{ route('tratamientos.index') }}" class="flex items-center gap-1 px-3 py-2.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex-shrink-0">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </a>
                 @endif
             </form>
 
             <button onclick="toggleFiltros()"
                 class="relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Filtros
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg> Filtros
                 @if(request()->hasAny(['vacuna_id','fecha_desde','fecha_hasta']))
                 <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-teal-600 text-[10px] font-bold text-white">✓</span>
                 @endif
@@ -90,7 +90,7 @@
                     @forelse($tratamientos as $tratamiento)
                     @php
                         $proxima  = $tratamiento->fechaProximaDosis();
-                        $diffDias = $proxima ? now()->diffInDays($proxima, false) : null;
+                        $diffDias = $proxima ? (int) now()->diffInDays($proxima, false) : null;
                         $vacuna   = $tratamiento->vacuna;
                         $totalDosis = $vacuna?->numero_dosis;
                     @endphp
@@ -114,7 +114,7 @@
 
                         <td class="px-4 py-3">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-700">
-                                <i data-lucide="syringe" class="w-3 h-3"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
                                 {{ $tratamiento->vacuna?->nombre ?? '—' }}
                             </span>
                         </td>
@@ -148,7 +148,7 @@
                             </p>
                             @elseif($totalDosis && $tratamiento->dosis_aplicada >= $totalDosis)
                             <span class="inline-flex items-center gap-1 text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full font-medium">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i> Esquema completo
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Esquema completo
                             </span>
                             @else
                             <span class="text-xs text-gray-400">—</span>
@@ -168,20 +168,22 @@
                             <div class="flex justify-end items-center gap-1.5">
                                 <a href="{{ route('tratamientos.show', $tratamiento->id) }}"
                                     class="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg" title="Ver ficha">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                                 <a href="{{ route('tratamientos.edit', $tratamiento->id) }}"
                                     class="p-1.5 text-yellow-500 hover:text-yellow-700 hover:bg-yellow-50 rounded-lg" title="Editar">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                                 </a>
+                                @if($tratamiento->paciente)
                                 <a href="{{ route('tratamientos.historial.paciente', $tratamiento->paciente->id) }}"
                                     class="p-1.5 text-teal-500 hover:text-teal-700 hover:bg-teal-50 rounded-lg" title="Historial del paciente">
-                                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" x2="15" y1="12" y2="12"/><line x1="9" x2="15" y1="16" y2="16"/><line x1="9" x2="11" y1="8" y2="8"/></svg>
                                 </a>
+                                @endif
                                 <button type="button"
                                     onclick="abrirEliminar({{ $tratamiento->id }})"
                                     class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Eliminar">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                                 </button>
                             </div>
                         </td>
@@ -189,7 +191,7 @@
                     @empty
                     <tr>
                         <td colspan="8" class="px-4 py-20 text-center">
-                            <i data-lucide="syringe" class="w-12 h-12 mx-auto mb-2 text-gray-300"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
                             <p class="font-semibold text-gray-500">Sin vacunaciones registradas</p>
                             <a href="{{ route('tratamientos.create') }}" class="text-teal-600 hover:underline text-sm mt-1 inline-block">Registrar primera vacunación</a>
                         </td>
@@ -216,10 +218,10 @@
 <div id="filtrosPanel" class="fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
     <div class="flex items-center justify-between p-5 border-b border-gray-200 flex-shrink-0">
         <div class="flex items-center gap-2">
-            <i data-lucide="sliders-horizontal" class="w-5 h-5 text-teal-600"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>
             <h3 class="text-base font-semibold text-gray-900">Filtrar Vacunaciones</h3>
         </div>
-        <button onclick="toggleFiltros()" class="text-gray-400 hover:bg-gray-100 rounded-lg p-1.5"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <button onclick="toggleFiltros()" class="text-gray-400 hover:bg-gray-100 rounded-lg p-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
     <form method="GET" action="{{ route('tratamientos.index') }}" class="flex flex-col flex-1 overflow-hidden">
         @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
@@ -246,12 +248,12 @@
         </div>
         <div class="flex-shrink-0 p-5 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-3">
             <a href="{{ route('tratamientos.index') }}" class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800">
-                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Limpiar
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Limpiar
             </a>
             <div class="flex gap-2">
                 <button type="button" onclick="toggleFiltros()" class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
                 <button type="submit" class="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800">
-                    <i data-lucide="search" class="w-4 h-4"></i> Aplicar
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> Aplicar
                 </button>
             </div>
         </div>
@@ -262,9 +264,9 @@
 <div id="deleteModal" class="hidden fixed inset-0 z-50 flex justify-center items-center bg-gray-900/40">
     <div class="p-4 w-full max-w-md">
         <div class="bg-white rounded-xl shadow-xl text-center p-6">
-            <button onclick="document.getElementById('deleteModal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:bg-gray-100 rounded-lg p-1.5"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <button onclick="document.getElementById('deleteModal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 hover:bg-gray-100 rounded-lg p-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
             <div class="mx-auto mb-4 w-14 h-14 bg-red-100 rounded-full flex items-center justify-center">
-                <i data-lucide="trash-2" class="w-7 h-7 text-red-600"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
             </div>
             <h3 class="text-lg font-bold text-gray-900 mb-1">¿Eliminar esta vacunación?</h3>
             <p class="text-sm text-gray-500 mb-6">Esto afectará el historial médico del paciente. Esta acción no se puede deshacer.</p>
@@ -273,7 +275,7 @@
                 <form id="deleteForm" method="POST" class="inline">
                     @csrf @method('DELETE')
                     <button type="submit" class="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Sí, eliminar
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Sí, eliminar
                     </button>
                 </form>
             </div>
@@ -283,7 +285,7 @@
 
 @push('scripts')
 <script>
-    lucide.createIcons();
+    
     function toggleFiltros() {
         const p = document.getElementById('filtrosPanel');
         const o = document.getElementById('filtrosOverlay');
