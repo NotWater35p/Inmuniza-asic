@@ -69,7 +69,7 @@
             <div class="header-meta">
                 <strong>{{ strtoupper($nombreMes) }} {{ $anio }}</strong>
                 Generado: {{ now()->format('d/m/Y H:i') }}
-                <br>Responsable: {{ $modulo->jefe?->nombres . ' ' . $modulo->jefe?->apellidos ?? 'No asignado' }}
+                <br>Responsable: {{ $modulo->jefe ? $modulo->jefe->nombre . ' ' . $modulo->jefe->apellido : 'No asignado' }}
             </div>
         </div>
     </div>

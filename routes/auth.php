@@ -163,8 +163,8 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
 
     Route::prefix('sispai')->name('sispai.')->group(function () {
         Route::get('/',       [SispaIController::class, 'index'])->name('index');
-        Route::post('/sispai/excel', [SispaIController::class, 'excel'])->name('sispai.excel');
-        Route::post('/sispai/pdf',   [SispaIController::class, 'pdf'])->name('sispai.pdf');
+        Route::post('/excel', [SispaIController::class, 'excel'])->name('excel');
+        Route::post('/pdf',   [SispaIController::class, 'pdf'])->name('pdf');
     });
 
     // Catálogos rápidos (modal AJAX)
