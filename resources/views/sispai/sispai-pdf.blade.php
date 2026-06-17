@@ -157,7 +157,7 @@
                 @foreach($jornadas as $jornada)
                 <tr>
                     <td style="white-space:nowrap; font-weight:600">{{ $jornada->fecha_jornada->format('d/m/Y') }}</td>
-                    <td>{{ $jornada->responsable ? $jornada->responsable->nombres . ' ' . $jornada->responsable->apellidos : '—' }}</td>
+                    <td>{{ $jornada->responsable ? $jornada->responsable->nombre . ' ' . $jornada->responsable->apellido : '—' }}</td>
                     <td class="td-num"><span class="badge badge-blue">{{ $jornada->totalDosis() }}</span></td>
                     <td class="td-num"><span class="badge badge-green">{{ $jornada->totalPacientes() }}</span></td>
                     <td style="color:#6b7280">{{ $jornada->descripcion ?? '—' }}</td>

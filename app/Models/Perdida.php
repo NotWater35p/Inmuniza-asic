@@ -24,12 +24,7 @@ class Perdida extends Model
         'cantidad' => 'integer',
     ];
 
-    const MOTIVOS = [
-        'Vencimiento',
-        'Rotura',
-        'Cadena de frío',
-        'Otro',
-    ];
+    const MOTIVOS = ['Vencimiento', 'Rotura', 'Cadena de frío', 'Otro'];
 
     public function vacuna(): BelongsTo
     {

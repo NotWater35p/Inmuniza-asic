@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 | Rutas protegidas — requieren autenticación + no-cache
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'no.cache'])->group(function () {
 
     // ════════════════════════════════════════════════════════════════
@@ -40,7 +41,6 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
         Route::resource('users', UserController::class);
         Route::get('users/personal/buscar', [UserController::class, 'buscarPersonal'])
             ->name('users.personal.buscar');
-
     });
 
     // ════════════════════════════════════════════════════════════════
@@ -97,7 +97,6 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
 
         // Pérdidas del ASIC (historial global con filtros)
         Route::resource('perdida', PerdidaController::class);
-
     });
 
     // ════════════════════════════════════════════════════════════════
@@ -150,7 +149,7 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
     // Pérdidas del módulo  ← destroy en el grupo general para que el jefe de módulo pueda eliminar
     Route::get('modulo/{modulo}/perdidas',            [ModuloPerdidaController::class, 'index'])->name('modulo.perdidas.index');
     Route::post('modulo/{modulo}/perdidas',           [ModuloPerdidaController::class, 'store'])->name('modulo.perdidas.store');
-    Route::delete('modulo/{modulo}/perdidas/{perdida}',[ModuloPerdidaController::class, 'destroy'])->name('modulo.perdidas.destroy');
+    Route::delete('modulo/{modulo}/perdidas/{perdida}', [ModuloPerdidaController::class, 'destroy'])->name('modulo.perdidas.destroy');
 
     // Lotes disponibles en módulo (AJAX)
     Route::get('modulo/{modulo}/lotes/{vacuna}',      [ModuloPerdidaController::class, 'lotesDisponibles'])->name('modulo.lotes.vacuna');
@@ -161,9 +160,12 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
     Route::get('modulo/{modulo}/reporte/excel',       [ReporteModuloController::class, 'excel'])->name('modulo.reporte.excel');
 
     // SISPAI
-    Route::get('/sispai',          [SispaIController::class, 'index'])->name('sispai.index');
-    Route::get('/sispai/excel',    [SispaIController::class, 'excel'])->name('sispai.excel');
-    Route::get('/sispai/pdf',      [SispaIController::class, 'pdf'])->name('sispai.pdf');
+
+    Route::prefix('sispai')->name('sispai.')->group(function () {
+        Route::get('/',       [SispaIController::class, 'index'])->name('index');
+        Route::post('/sispai/excel', [SispaIController::class, 'excel'])->name('sispai.excel');
+        Route::post('/sispai/pdf',   [SispaIController::class, 'pdf'])->name('sispai.pdf');
+    });
 
     // Catálogos rápidos (modal AJAX)
     Route::post('etnias',          [EtniaController::class, 'store'])->name('etnias.store');
@@ -175,8 +177,8 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
         $pacientes = \App\Models\Paciente::with(['sector'])
             ->where(function ($query) use ($q) {
                 $query->where('cedula',    'like', "%$q%")
-                      ->orWhere('nombres',   'like', "%$q%")
-                      ->orWhere('apellidos', 'like', "%$q%");
+                    ->orWhere('nombres',   'like', "%$q%")
+                    ->orWhere('apellidos', 'like', "%$q%");
             })
             ->limit(8)
             ->get();
@@ -194,5 +196,4 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
             'sector'    => $p->sector?->nombre,
         ]));
     })->name('paciente.buscar.ajax');
-
 });
