@@ -70,7 +70,7 @@
                 ['nombre' => 'Herazo G., Dany M.',        'cedula' => 'V-30.938.548', 'color' => 'bg-violet-100 text-violet-700','init' => 'XD'],
                 ['nombre' => 'Medina N., Samanta M.',     'cedula' => 'V-31.614.072', 'color' => 'bg-pink-100 text-pink-700',    'init' => 'SM'],
                 ['nombre' => 'Mesa V., Deivis J.',        'cedula' => 'V-27.846.981', 'color' => 'bg-amber-100 text-amber-700',  'init' => 'DM'],
-                ['nombre' => 'Viana G., Samuel D.',       'cedula' => 'V-30.940.495', 'color' => 'bg-emerald-100 text-emerald-700','init' => 'SV'],
+                ['nombre' => 'Viana G., Samuel D.',       'cedula' => 'V-30.940.495', 'color' => 'bg-emerald-100 text-emerald-700','init' => 'PN'],
             ];
             @endphp
 
@@ -115,7 +115,7 @@
     </div>
 
     {{-- Stack tecnológico --}}
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+    {{-- <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
             <h3 class="text-sm font-bold text-gray-800">Stack Tecnológico</h3>
@@ -139,7 +139,7 @@
             </div>
             @endforeach
         </div>
-    </div>
+    </div> --}}
 
     {{-- Footer --}}
     <p class="text-center text-xs text-gray-400 pb-2">
